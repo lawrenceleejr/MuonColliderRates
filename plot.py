@@ -10,8 +10,6 @@ rcParams['font.family'] = 'Myriad Pro'
 import matplotlib.pyplot as plt
 import numpy as np
 
-import ROOT
-
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
 from matplotlib.colors import to_rgba
 
