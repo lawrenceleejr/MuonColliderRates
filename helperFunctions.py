@@ -1,6 +1,4 @@
 import numpy as np
-import seaborn as sns
-import ROOT
 
 
 def doFillBetween(x,y,axis,n=10,dy=1,color="k",alpha=0.03,log=True,clip_on=True):
