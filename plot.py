@@ -71,10 +71,10 @@ ax.annotate(
     arrowprops=dict(arrowstyle='-|>'), va="center", ha="right"
 )
 
-ax.text(10, 1e6, r'$\{$',
-        fontsize=120,
-        ha='right', va='center',
-        fontfamily='serif')  # Try 'monospace' or 'sans-serif' too
+# ax.text(10, 1e6, r'$\{$',
+#         fontsize=120,
+#         ha='right', va='center',
+#         fontfamily='serif')  # Try 'monospace' or 'sans-serif' too
 
 
 ### Actual Curves:
