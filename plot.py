@@ -6,9 +6,12 @@ import numpy as np
 
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
 from matplotlib.colors import to_rgba
+import matplotlib.transforms as mtrans
+from matplotlib.transforms import Affine2D
+
 
 import sys
-sys.path.insert(0, "..")
+# sys.path.insert(0, "..")
 from helperFunctions import *
 
 # plt.subplots_adjust(wspace=0.03)
@@ -68,6 +71,10 @@ ax.annotate(
     arrowprops=dict(arrowstyle='-|>'), va="center", ha="right"
 )
 
+ax.text(10, 1e6, r'$\{$',
+        fontsize=120,
+        ha='right', va='center',
+        fontfamily='serif')  # Try 'monospace' or 'sans-serif' too
 
 
 ### Actual Curves:
