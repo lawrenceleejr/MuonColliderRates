@@ -22,7 +22,7 @@ jobs:
       - name: Install matplotlib and matplotlib_tufte
         run: |
           pip install --no-cache-dir matplotlib
-          pip install --no-cache-dir matplotlib_tufte
+          pip install --no-cache-dir "matplotlib_tufte @ git+https://github.com/ninivert/matplotlib_tufte.git"
 
       - name: Run the plot
         run: python plot.py
