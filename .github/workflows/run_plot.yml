@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: python:3.11-slim  # Includes pip and can install matplotlib
+      image: python:3.11  # Includes pip and can install matplotlib
       options: --user root
 
     steps:
