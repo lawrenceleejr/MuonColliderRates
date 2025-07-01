@@ -1,0 +1,34 @@
+name: Run Plot with matplotlib_tufte
+
+on:
+  push:
+    paths:
+      - 'plot.py'
+      - '.github/workflows/run_plot.yml'
+  workflow_dispatch:
+
+jobs:
+  run-plot:
+    runs-on: ubuntu-latest
+
+    container:
+      image: python:3.11-slim  # Includes pip and can install matplotlib
+      options: --user root
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install matplotlib and matplotlib_tufte
+        run: |
+          pip install --no-cache-dir matplotlib
+          pip install --no-cache-dir matplotlib_tufte
+
+      - name: Run the plot
+        run: python plot.py
+
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MuonColliderRates
+          path: MuonColliderRates.pdf
