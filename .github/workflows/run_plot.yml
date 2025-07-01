@@ -3,8 +3,7 @@ name: Run Plot with matplotlib_tufte
 on:
   push:
     paths:
-      - 'plot.py'
-      - '.github/workflows/run_plot.yml'
+      - '**'
   workflow_dispatch:
 
 jobs:
