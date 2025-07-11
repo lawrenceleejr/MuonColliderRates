@@ -40,6 +40,7 @@ data = {}
 
 # data["collisionrate"] = np.genfromtxt("data/collisionrate.txt", delimiter=",", skip_header=0, names=["x","y"])
 
+data["mumu"] = np.genfromtxt("data/mumu.txt", delimiter=",", skip_header=1, names=["x","y","sigma"])
 data["vbfqq"] = np.genfromtxt("data/vbfqq.txt", delimiter=",", skip_header=0, names=["x","y"])
 data["vbfz"] = np.genfromtxt("data/vbfz.txt", delimiter=",", skip_header=1, names=["x","y"])
 data["vbftt"] = np.genfromtxt("data/vbftt.txt", delimiter=",", skip_header=1, names=["x","y"])
@@ -54,7 +55,7 @@ fig, ax = plt.subplots(1,1, figsize=(1.5*baselength, 2.5*baselength))
 
 # Add manually scaled Y axis on the right
 ax2 = ax.secondary_yaxis('right', functions=(fb_to_hz,hz_to_fb))
-ax2.set_ylabel(r'Rate (at L=$2\times10^{35}$ cm$^{-2}$ s$^{-1}$) [Hz]', color='black')
+ax2.set_ylabel(r'Rate (at $\sqrt{s}=$10 TeV, L=$2\times10^{35}$ cm$^{-2}$ s$^{-1}$) [Hz]', color='black')
 ax2.tick_params(axis='y', labelcolor='black')
 ax2.set_yscale('log',base=10)
 
@@ -112,11 +113,21 @@ ax.annotate(
 i=0
 alpha=1
 
+ax.plot(data["mumu"]['x'], (1000*data["mumu"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
+ax.text( 0.95*10, 0.07*1000*data["mumu"]['y'][3],
+    r"$\mu\mu$ ($p_T>10$ GeV)",
+    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+)
+
+
+i=i+1
 ax.plot(data["vbfqq"]['x'], (data["vbfqq"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
 ax.text( 0.95*10, 1.05*data["vbfqq"]['y'][3],
     r"VBF $q\bar{q}$",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
+
+
 
 
 i=i+1
