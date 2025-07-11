@@ -25,7 +25,7 @@ def hz_to_fb(rate_hz, lumi_cm2_s=2e35):
 
 
 
-colors = ["#FF595E",  "#1982C4", "#8AC926", "#F2CC8F", "#1982C4", "#1982C4"] 
+colors = ["#FF595E",  "#1982C4", "#8AC926", "#F2CC8F", "#1982C4", "#1982C4"]
 # colors = ["#E07A5F",  # Terra Cotta
 # 		"#F2CC8F",  # Sand
 # 		"#81B29A"]  # Sage
@@ -80,6 +80,13 @@ ax.annotate(
 
 
 ax.annotate(
+    '11 kHz Collision Rate (27 km)',       # Text
+    xy=(10, hz_to_fb(11245)),                 # Point to annotate
+    xytext=(8, hz_to_fb(11245)),           # Position of the text (to the left)
+    arrowprops=dict(arrowstyle='-|>'), va="center", ha="right"
+)
+
+ax.annotate(
     '30 kHz Collision Rate (10 km)',       # Text
     xy=(10, hz_to_fb(29979)),                 # Point to annotate
     xytext=(8, hz_to_fb(29979)),           # Position of the text (to the left)
@@ -106,53 +113,53 @@ i=0
 alpha=1
 
 ax.plot(data["vbfqq"]['x'], (data["vbfqq"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 0.95*10, 1.05*data["vbfqq"]['y'][3], 
-    r"VBF $q\bar{q}$", 
+ax.text( 0.95*10, 1.05*data["vbfqq"]['y'][3],
+    r"VBF $q\bar{q}$",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
 
 
 i=i+1
 ax.plot(data["vbfz"]['x'], (data["vbfz"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 0.95*10, 1.05*data["vbfz"]['y'][69], 
-    r"VBF Z", 
+ax.text( 0.95*10, 1.05*data["vbfz"]['y'][69],
+    r"VBF Z",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
 
 
 i=i+1
 ax.plot(data["vbftt"]['x'], (data["vbftt"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 0.95*10, 1.05*data["vbftt"]['y'][71], 
-    r"VBF $t\bar{t}$", 
+ax.text( 0.95*10, 1.05*data["vbftt"]['y'][71],
+    r"VBF $t\bar{t}$",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
 
 i=i+1
 ax.plot(data["vbftth"]['x'], (data["vbftth"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 0.95*10, 1.05*data["vbftth"]['y'][75], 
-    r"VBF $t\bar{t}H$", 
+ax.text( 0.95*10, 1.05*data["vbftth"]['y'][75],
+    r"VBF $t\bar{t}H$",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
 
 i=i+1
 ax.plot(data["vbfh"]['x'], (data["vbfh"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 0.95*10, 1.05*data["vbfh"]['y'][65], 
-    r"VBF $H$", 
+ax.text( 0.95*10, 1.05*data["vbfh"]['y'][65],
+    r"VBF $H$",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
 
 
 i=i
 ax.plot(data["vbfhh"]['x'], (data["vbfhh"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 0.95*10, 1.05*data["vbfhh"]['y'][66], 
-    r"VBF $HH$", 
+ax.text( 0.95*10, 1.05*data["vbfhh"]['y'][66],
+    r"VBF $HH$",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
 
 i=i
 ax.plot(data["vbfhhh"]['x'], (data["vbfhhh"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 0.95*10, 1.05*data["vbfhhh"]['y'][73], 
-    r"VBF $HHH$", 
+ax.text( 0.95*10, 1.05*data["vbfhhh"]['y'][73],
+    r"VBF $HHH$",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
 
