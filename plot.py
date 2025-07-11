@@ -2,6 +2,7 @@ from matplotlib_tufte import *
 setup()
 
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FormatStrFormatter, LogLocator, ScalarFormatter
 import numpy as np
 
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
@@ -215,7 +216,13 @@ ax.set_yscale('log',base=10)
 ax.set_ylim([1e-4,1e12])
 ax.set_xlim([1,10])
 
+# Use FormatStrFormatter for clean labels
+formatter = FormatStrFormatter('%g')
+ax.xaxis.set_major_formatter(formatter)
+ax.xaxis.set_minor_formatter(formatter)
 
+# Optional: control tick placement
+ax.xaxis.set_minor_locator(LogLocator(base=10.0, subs='auto', numticks=100))
 
 ax.spines['top'].set_visible(False)
 
