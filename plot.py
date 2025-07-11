@@ -37,7 +37,19 @@ def mark_crossing(line, x_val, **marker_kwargs):
             break  # Only mark the first crossing
 
 
-colors = ["#FF595E",  "#1982C4", "#8AC926", "#F2CC8F", "#1982C4", "#1982C4"]
+# colors = ["#FF595E",  "#1982C4", "#8AC926", "#F2CC8F", "#1982C4", "#1982C4"]
+
+colors = [
+    "#d62728",  # red
+    "#ff7f0e",  # orange
+    "#8c564b",  # brown
+    "#2ca02c",  # green
+    "#17becf",  # cyan
+    "#1f77b4",  # blue
+    "#9467bd",  # purple
+    "#e377c2",  # pink
+    "#7f7f7f",  # gray (undefined hue, typically placed last or first depending on purpose)
+]
 # colors = ["#E07A5F",  # Terra Cotta
 # 		"#F2CC8F",  # Sand
 # 		"#81B29A"]  # Sage
@@ -68,8 +80,11 @@ fig, ax = plt.subplots(1,1, figsize=(1.5*baselength, 2.5*baselength))
 # Add manually scaled Y axis on the right
 ax2 = ax.secondary_yaxis('right', functions=(fb_to_hz,hz_to_fb))
 ax2.set_ylabel(r'Rate (at $\sqrt{s}=$10 TeV, L=$2\times10^{35}$ cm$^{-2}$ s$^{-1}$) [Hz]', color='black')
-ax2.tick_params(axis='y', labelcolor='black')
 ax2.set_yscale('log',base=10)
+# ax2.spines.right.set_position(('data', 20))
+ax2.yaxis.set_major_locator(LogLocator(base=10.0, subs=None))
+ax2.tick_params(axis='y', labelcolor='black')
+# ax2.yaxis.set_minor_locator(LogLocator(base=10.0, subs='auto', numticks=10))
 
 
 ax.annotate(
@@ -125,29 +140,42 @@ ax.annotate(
 i=0
 alpha=1
 
-line, = ax.plot(data["mumu"]['x'], (1000*data["mumu"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 0.95*10, 0.07*1000*data["mumu"]['y'][3],
-    r"$\mu\mu$ ($p_{T,\mu}>10$ GeV)",
-    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
-)
-mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
-
-
-
-i=i+1
-line, = ax.plot(data["vbfqq"]['x'], (data["vbfqq"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 0.95*10, 1.05*data["vbfqq"]['y'][3],
-    r"VBF $q\bar{q}$",
-    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
-)
-mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
-
-
-
-i=i+1
 line, = ax.plot(data["vbfz"]['x'], (data["vbfz"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
 ax.text( 0.95*10, 1.05*data["vbfz"]['y'][69],
     r"VBF Z",
+    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+)
+mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+
+
+
+# i=i+1
+# line, = ax.plot(data["vbfqq"]['x'], (data["vbfqq"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
+# ax.text( 0.95*10, 1.05*data["vbfqq"]['y'][3],
+#     r"VBF $q\bar{q}$",
+#     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+# )
+# mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+
+
+
+
+i=i+1
+line, = ax.plot(data["vbfh"]['x'], (data["vbfh"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
+ax.text( 0.95*10, 1.05*data["vbfh"]['y'][65],
+    r"VBF $H$",
+    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+)
+mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+
+
+
+
+
+i=i+1
+line, = ax.plot(data["mumu"]['x'], (1000*data["mumu"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
+ax.text( 0.95*10, 0.07*1000*data["mumu"]['y'][3],
+    r"$\mu\mu$ ($p_{T,\mu}>10$ GeV, $|\eta_{\mu}|<2.5$)",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
 mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
@@ -164,25 +192,6 @@ mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
 
 
 i=i+1
-line, = ax.plot(data["vbftth"]['x'], (data["vbftth"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 0.95*10, 1.05*data["vbftth"]['y'][75],
-    r"VBF $t\bar{t}H$",
-    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
-)
-mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
-
-
-i=i+1
-line, = ax.plot(data["vbfh"]['x'], (data["vbfh"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 0.95*10, 1.05*data["vbfh"]['y'][65],
-    r"VBF $H$",
-    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
-)
-mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
-
-
-
-i=i
 line, = ax.plot(data["vbfhh"]['x'], (data["vbfhh"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
 ax.text( 0.95*10, 1.05*data["vbfhh"]['y'][66],
     r"VBF $HH$",
@@ -191,7 +200,39 @@ ax.text( 0.95*10, 1.05*data["vbfhh"]['y'][66],
 mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
 
 
-i=i
+
+# https://arxiv.org/pdf/2102.11292
+i=i+1
+ax.text( 0.95*10, 2.1812164,
+    r"Thermal $\tilde{W}$ WIMP",
+    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='center',horizontalalignment='right'
+)
+ax.plot(10, 2.1812164, marker='o',clip_on=False, color=to_rgba(colors[i],alpha))
+
+
+i=i+1
+ax.text( 0.95*10, 1.18436,
+    r"Thermal $\tilde{H}$ WIMP",
+    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='center',horizontalalignment='right'
+)
+ax.plot(10, 1.18436, marker='o',clip_on=False, color=to_rgba(colors[i],alpha))
+
+
+
+
+
+
+i=i+1
+line, = ax.plot(data["vbftth"]['x'], (data["vbftth"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
+ax.text( 0.95*10, 1.05*data["vbftth"]['y'][75],
+    r"VBF $t\bar{t}H$",
+    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+)
+mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+
+
+
+i=i+1
 line, = ax.plot(data["vbfhhh"]['x'], (data["vbfhhh"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
 ax.text( 0.95*10, 1.05*data["vbfhhh"]['y'][73],
     r"VBF $HHH$",
@@ -204,6 +245,22 @@ mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
 
 
 
+
+
+# Labels
+
+ax.text( 1, 1e6,
+    r"Muon Collider Rates",
+    color="k", fontsize=18, verticalalignment='bottom',horizontalalignment='left'
+)
+ax.text( 1, 0.5e6,
+    r"L. Lee, T. Holmes",
+    color="k", fontsize=10, verticalalignment='bottom',horizontalalignment='left'
+)
+ax.text( 1, 0.25e6,
+    r"$\sigma$ from 2102.11292, ..., and MadGraph",
+    color="k", fontsize=10, verticalalignment='bottom',horizontalalignment='left'
+)
 
 
 
