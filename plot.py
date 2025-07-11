@@ -77,6 +77,7 @@ data["vbfhhh"] = np.genfromtxt("data/vbfhhh.txt", delimiter=",", skip_header=1, 
 baselength=4
 fig, ax = plt.subplots(1,1, figsize=(1.5*baselength, 2.5*baselength))
 
+
 # Add manually scaled Y axis on the right
 ax2 = ax.secondary_yaxis('right', functions=(fb_to_hz,hz_to_fb))
 ax2.set_ylabel(r'Rate (at $\sqrt{s}=$10 TeV, L=$2\times10^{35}$ cm$^{-2}$ s$^{-1}$) [Hz]', color='black')
@@ -277,9 +278,10 @@ ax.set_xlim([1,10])
 formatter = FormatStrFormatter('%g')
 ax.xaxis.set_major_formatter(formatter)
 ax.xaxis.set_minor_formatter(formatter)
-
 # Optional: control tick placement
 ax.xaxis.set_minor_locator(LogLocator(base=10.0, subs='auto', numticks=100))
+
+# ax.tick_params(axis='x', which='both', pad=8)
 
 ax.spines['top'].set_visible(False)
 
