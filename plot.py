@@ -23,6 +23,17 @@ def fb_to_hz(cross_section_fb, lumi_cm2_s=2e35):
 def hz_to_fb(rate_hz, lumi_cm2_s=2e35):
     return rate_hz / lumi_cm2_s * 1e39
 
+def mark_crossing(line, x_val, **marker_kwargs):
+    x_data, y_data = line.get_data()
+    # Find where x_data crosses x_val
+    for i in range(len(x_data) - 1):
+        if (x_data[i] - x_val) * (x_data[i+1] - x_val) <= 0:
+            # Linear interpolation for y at x_val
+            x0, x1 = x_data[i], x_data[i+1]
+            y0, y1 = y_data[i], y_data[i+1]
+            y_cross = y0 + (y1 - y0) * (x_val - x0) / (x1 - x0)
+            ax.plot(x_val, y_cross, marker='o',clip_on=False, **marker_kwargs)
+            break  # Only mark the first crossing
 
 
 colors = ["#FF595E",  "#1982C4", "#8AC926", "#F2CC8F", "#1982C4", "#1982C4"]
@@ -113,66 +124,80 @@ ax.annotate(
 i=0
 alpha=1
 
-ax.plot(data["mumu"]['x'], (1000*data["mumu"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
+line, = ax.plot(data["mumu"]['x'], (1000*data["mumu"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
 ax.text( 0.95*10, 0.07*1000*data["mumu"]['y'][3],
-    r"$\mu\mu$ ($p_T>10$ GeV)",
+    r"$\mu\mu$ ($p_{T,\mu}>10$ GeV)",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
+mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+
 
 
 i=i+1
-ax.plot(data["vbfqq"]['x'], (data["vbfqq"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
+line, = ax.plot(data["vbfqq"]['x'], (data["vbfqq"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
 ax.text( 0.95*10, 1.05*data["vbfqq"]['y'][3],
     r"VBF $q\bar{q}$",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
-
+mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
 
 
 
 i=i+1
-ax.plot(data["vbfz"]['x'], (data["vbfz"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
+line, = ax.plot(data["vbfz"]['x'], (data["vbfz"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
 ax.text( 0.95*10, 1.05*data["vbfz"]['y'][69],
     r"VBF Z",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
+mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+
 
 
 i=i+1
-ax.plot(data["vbftt"]['x'], (data["vbftt"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
+line, = ax.plot(data["vbftt"]['x'], (data["vbftt"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
 ax.text( 0.95*10, 1.05*data["vbftt"]['y'][71],
     r"VBF $t\bar{t}$",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
+mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+
 
 i=i+1
-ax.plot(data["vbftth"]['x'], (data["vbftth"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
+line, = ax.plot(data["vbftth"]['x'], (data["vbftth"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
 ax.text( 0.95*10, 1.05*data["vbftth"]['y'][75],
     r"VBF $t\bar{t}H$",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
+mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+
 
 i=i+1
-ax.plot(data["vbfh"]['x'], (data["vbfh"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
+line, = ax.plot(data["vbfh"]['x'], (data["vbfh"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
 ax.text( 0.95*10, 1.05*data["vbfh"]['y'][65],
     r"VBF $H$",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
+mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+
 
 
 i=i
-ax.plot(data["vbfhh"]['x'], (data["vbfhh"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
+line, = ax.plot(data["vbfhh"]['x'], (data["vbfhh"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
 ax.text( 0.95*10, 1.05*data["vbfhh"]['y'][66],
     r"VBF $HH$",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
+mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+
 
 i=i
-ax.plot(data["vbfhhh"]['x'], (data["vbfhhh"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
+line, = ax.plot(data["vbfhhh"]['x'], (data["vbfhhh"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
 ax.text( 0.95*10, 1.05*data["vbfhhh"]['y'][73],
     r"VBF $HHH$",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
+mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+
 
 
 
