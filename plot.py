@@ -204,16 +204,16 @@ mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
 
 # https://arxiv.org/pdf/2102.11292
 i=i+1
-ax.text( 0.95*10, 2.1812164,
-    r"Thermal $\tilde{W}$ WIMP",
+ax.text( 0.95*10, 0.65*(2.2+0.039),
+    r"Ther. $\tilde{W}$ WIMP",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='center',horizontalalignment='right'
 )
-ax.plot(10, 2.1812164, marker='o',clip_on=False, color=to_rgba(colors[i],alpha))
+ax.plot(10, 2.2+0.039, marker='o',clip_on=False, color=to_rgba(colors[i],alpha))
 
 
 i=i+1
-ax.text( 0.95*10, 1.18436,
-    r"Thermal $\tilde{H}$ WIMP",
+ax.text( 0.95*10, 0.65*1.18436,
+    r"Ther. $\tilde{H}$ WIMP",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='center',horizontalalignment='right'
 )
 ax.plot(10, 1.18436, marker='o',clip_on=False, color=to_rgba(colors[i],alpha))
@@ -254,13 +254,9 @@ ax.text( 1, 1e6,
     r"Muon Collider Rates",
     color="k", fontsize=18, verticalalignment='bottom',horizontalalignment='left'
 )
-ax.text( 1, 0.5e6,
-    r"L. Lee, T. Holmes",
-    color="k", fontsize=10, verticalalignment='bottom',horizontalalignment='left'
-)
-ax.text( 1, 0.25e6,
-    r"$\sigma$ from 2102.11292, ..., and MadGraph",
-    color="k", fontsize=10, verticalalignment='bottom',horizontalalignment='left'
+ax.text( 1, 0.8e6,
+    r"$\sigma$ from 2005.10289, 2102.11292,"+ "\nand MadGraph5_aMC@NLO",
+    color="k", fontsize=10, verticalalignment='top',horizontalalignment='left'
 )
 
 
@@ -286,7 +282,14 @@ ax.xaxis.set_minor_locator(LogLocator(base=10.0, subs='auto', numticks=100))
 ax.spines['top'].set_visible(False)
 
 
+tick_padding = 7  # choose a value that looks good to you
+ax.tick_params(axis='x', which='major', length=5, pad=tick_padding-5)
+ax.tick_params(axis='x', which='minor', length=2, pad=tick_padding-2)
+
 breathe_logxy(ax)
+
+
+fig.text(0.97, 0.03, 'L. Lee, T. Holmes', ha='right', va='top', fontsize=10)
 
 
 # Force figure to render, so transforms are accurate
