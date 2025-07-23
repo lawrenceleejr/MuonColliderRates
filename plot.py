@@ -122,6 +122,19 @@ ax.annotate(
     arrowprops=dict(arrowstyle='-|>'), va="center", ha="right"
 )
 
+
+ax.annotate(
+    'Beam-Induced Neutrino Interactions in Detector',       # Text
+    xy=(10, hz_to_fb(29979)*0.44*0.21),                 # Point to annotate
+    xytext=(8, hz_to_fb(29979)*0.44*0.21),           # Position of the text (to the left)
+    arrowprops=dict(arrowstyle='-|>'), va="center", ha="right"
+)
+ax.text(8, 0.5*hz_to_fb(29979)*0.44*0.21, r'[2412.14115]',
+        fontsize=9,
+        ha='right', va='center',
+        fontfamily='serif')  # Try 'monospace' or 'sans-serif' too
+
+
 ax.annotate(
     '1 Event / Snowmass Year',       # Text
     xy=(10, hz_to_fb(1e-7)),                 # Point to annotate
