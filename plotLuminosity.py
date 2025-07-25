@@ -59,8 +59,8 @@ fig, ax1 = plt.subplots(figsize=(10, 5))
 
 # Left axis: normalized luminosity
 ax1.plot(t, L / L0, label=r'$L(t)/L(t=0)$', color='tab:blue')
-ax1.axhline(L_avg / L0, color='gray', linestyle='--', label='Average $L$')
-ax1.plot(t, BIB, label='BIB$(t)$/BIB$(t=0)$', color='tab:red')
+ax1.axhline(L_avg / L0, color='lightsteelblue', linestyle='--', label='$L_\mathrm{avg}/L(t=0)$')
+ax1.plot(t, BIB, label='BIB$(t)$/BIB$(t=0)$', color='tomato')
 ax1.set_xlabel("Time [s]")
 ax1.set_ylabel("Fraction of Peak Value")
 #ax1.set_ylabel(r"Instantaneous Luminosity [$10^{34}$ cm$^{-2}$ s$^{-1}$]", color='tab:blue')
