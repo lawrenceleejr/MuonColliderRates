@@ -152,19 +152,38 @@ ax.annotate(
 
 
 line, = ax.plot(data["lltohadrons"]['x'], (data["lltohadrons"]['y']*1e6),":", color="grey", lw=1, alpha=0.5)
-ax.text( 2, 0.2*data["lltohadrons"]['y'][69]*1e6,
-    r"$ll \to$Hadrons",
+ax.text( 1.2, 0.15*data["lltohadrons"]['y'][69]*1e6,
+    r"$\mu\mu\to$Hadrons",
     color="grey", fontsize=10, verticalalignment='bottom',horizontalalignment='left'
 )
 mark_crossing(line, 10, color="grey")
 
 line, = ax.plot(data["jj"]['x'], (data["jj"]['y']*1e3),"--", color="grey", lw=1, alpha=0.5)
 ax.text( 0.95*10, 1.3*data["jj"]['y'][69]*1e3,
-    r"Total jj",
+    r"jj ($p_{T,j}>5-7 \text{ GeV}$, $|\eta_{j}|<3.13$)",
     color="grey", fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
 mark_crossing(line, 10, color="grey")
 
+
+
+# ax.annotate(
+#     'Beam-Induced Neutrino Interaction Rate',       # Text
+#     xy=(10, hz_to_fb(29979)*0.44*0.21),                 # Point to annotate
+#     xytext=(8, hz_to_fb(29979)*0.44*0.21),           # Position of the text (to the left)
+#     arrowprops=dict(arrowstyle='-|>'), va="center", ha="right"
+# )
+# ax.text(8, 0.5*hz_to_fb(29979)*0.44*0.21, r'[2412.14115]',
+#         fontsize=9,
+#         ha='right', va='center',
+#         fontfamily='serif')  # Try 'monospace' or 'sans-serif' too
+
+
+ax.text( 0.95*10, 0.5*hz_to_fb(29979)*0.44*0.21,
+    "Neutrino Slice Interaction\n[2412.14115]",
+    color="grey", fontsize=10, verticalalignment='top',horizontalalignment='right'
+)
+ax.plot(10, 0.5*hz_to_fb(29979)*0.44*0.21, marker='o',clip_on=False, color="grey")
 
 
 
@@ -207,7 +226,7 @@ mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
 
 i=i+1
 line, = ax.plot(data["mumu"]['x'], (1000*data["mumu"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 2, 1.3*10000,
+ax.text( 2.2, 1.0*10000,
     r"$\mu\mu$ ($p_{T,\mu}>10$ GeV, $|\eta_{\mu}|<2.5$)",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='left'
 )
@@ -229,7 +248,7 @@ mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
 
 i=i+1
 line, = ax.plot(data["vbftt"]['x'], (data["vbftt"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 2, 6,
+ax.text( 1.2, 2,
     r"VBF $t\bar{t}$",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='left'
 )
@@ -265,7 +284,7 @@ mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
 
 i=i+1
 line, = ax.plot(data["thermalwimp"][0], (data["thermalwimp"][1]*1000.),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 2.9, 1.05*data["thermalwimp"][1][18]*1000.,
+ax.text( 2.25, 1e0,
     r"Thermal $\tilde{H}$-like WIMP",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='top',horizontalalignment='right',rotation=90
 )
@@ -274,7 +293,7 @@ mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
 
 i=i+1
 line, = ax.plot(data["thermalwimp"][0], (data["thermalwimp"][3]*1000.),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 6, 1.05*data["thermalwimp"][3][18]*1000.,
+ax.text( 5.7, 1e0,
     r"Thermal $\tilde{W}$-like WIMP",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='top',horizontalalignment='right', rotation=90
 )
@@ -369,31 +388,12 @@ fig.text(0.97, 0.03, 'L. Lee, T. Holmes', ha='right', va='top', fontsize=10)
 
 
 # Force figure to render, so transforms are accurate
-fig.subplots_adjust(left=0.15, right=0.93, bottom=0.18, top=0.96)
+fig.subplots_adjust(left=0.18, right=0.85, bottom=0.08, top=0.96)
 fig.canvas.draw()
 
-fig.savefig("MuonColliderRates.pdf")
+# fig.savefig("MuonColliderRates.pdf")
 # plt.show()
 
 
 
-# ax.annotate(
-#     'Beam-Induced Neutrino Interaction Rate',       # Text
-#     xy=(10, hz_to_fb(29979)*0.44*0.21),                 # Point to annotate
-#     xytext=(8, hz_to_fb(29979)*0.44*0.21),           # Position of the text (to the left)
-#     arrowprops=dict(arrowstyle='-|>'), va="center", ha="right"
-# )
-# ax.text(8, 0.5*hz_to_fb(29979)*0.44*0.21, r'[2412.14115]',
-#         fontsize=9,
-#         ha='right', va='center',
-#         fontfamily='serif')  # Try 'monospace' or 'sans-serif' too
-
-
-ax.text( 0.95*10, 0.5*hz_to_fb(29979)*0.44*0.21,
-    "Neutrino Slice Interaction\n[2412.14115]",
-    color="grey", fontsize=10, verticalalignment='top',horizontalalignment='right'
-)
-ax.plot(10, 0.5*hz_to_fb(29979)*0.44*0.21, marker='o',clip_on=False, color="grey")
-
-
-fig.savefig("MuonColliderRates_wBIN.pdf")
+fig.savefig("MuonColliderRates.pdf")
