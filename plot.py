@@ -12,8 +12,10 @@ from matplotlib.transforms import Affine2D
 
 
 import sys
-# sys.path.insert(0, "..")
+import ast
+sys.path.insert(0, "data")
 from helperFunctions import *
+from thermalwimp import tmpdata as thermalwimp_data
 
 # plt.subplots_adjust(wspace=0.03)
 def fb_to_hz(cross_section_fb, lumi_cm2_s=2e35):
@@ -44,11 +46,13 @@ colors = [
     "#ff7f0e",  # orange
     "#8c564b",  # brown
     "#2ca02c",  # green
+    "#bcbd22",  # lime (new)
     "#17becf",  # cyan
+    "#17a398",  # teal (new)
     "#1f77b4",  # blue
     "#9467bd",  # purple
     "#e377c2",  # pink
-    "#7f7f7f",  # gray (undefined hue, typically placed last or first depending on purpose)
+    "#7f7f7f",  # gray
 ]
 # colors = ["#E07A5F",  # Terra Cotta
 # 		"#F2CC8F",  # Sand
@@ -67,11 +71,18 @@ data = {}
 data["mumu"] = np.genfromtxt("data/mumu.txt", delimiter=",", skip_header=1, names=["x","y","sigma"])
 data["vbfqq"] = np.genfromtxt("data/vbfqq.txt", delimiter=",", skip_header=0, names=["x","y"])
 data["vbfz"] = np.genfromtxt("data/vbfz.txt", delimiter=",", skip_header=1, names=["x","y"])
+data["vbfww"] = np.genfromtxt("data/vbfww.txt", delimiter=",", skip_header=1, names=["x","y"])
+data["vbfwwz"] = np.genfromtxt("data/vbfwwz.txt", delimiter=",", skip_header=1, names=["x","y"])
 data["vbftt"] = np.genfromtxt("data/vbftt.txt", delimiter=",", skip_header=1, names=["x","y"])
 data["vbftth"] = np.genfromtxt("data/vbftth.txt", delimiter=",", skip_header=1, names=["x","y"])
 data["vbfh"] = np.genfromtxt("data/vbfh.txt", delimiter=",", skip_header=1, names=["x","y"])
 data["vbfhh"] = np.genfromtxt("data/vbfhh.txt", delimiter=",", skip_header=1, names=["x","y"])
 data["vbfhhh"] = np.genfromtxt("data/vbfhhh.txt", delimiter=",", skip_header=1, names=["x","y"])
+
+data["thermalwimp"] = np.array(thermalwimp_data)
+
+data["jj"] = np.genfromtxt("data/jj.txt", delimiter=",", skip_header=1, names=["x","y"])
+data["lltohadrons"] = np.genfromtxt("data/lltohadrons.txt", delimiter=",", skip_header=1, names=["x","y"])
 
 
 baselength=4
@@ -124,18 +135,6 @@ ax.annotate(
 
 
 ax.annotate(
-    'Beam-Induced Neutrino Interactions in Detector',       # Text
-    xy=(10, hz_to_fb(29979)*0.44*0.21),                 # Point to annotate
-    xytext=(8, hz_to_fb(29979)*0.44*0.21),           # Position of the text (to the left)
-    arrowprops=dict(arrowstyle='-|>'), va="center", ha="right"
-)
-ax.text(8, 0.5*hz_to_fb(29979)*0.44*0.21, r'[2412.14115]',
-        fontsize=9,
-        ha='right', va='center',
-        fontfamily='serif')  # Try 'monospace' or 'sans-serif' too
-
-
-ax.annotate(
     '1 Event / Snowmass Year',       # Text
     xy=(10, hz_to_fb(1e-7)),                 # Point to annotate
     xytext=(8, hz_to_fb(1e-7)),           # Position of the text (to the left)
@@ -149,6 +148,26 @@ ax.annotate(
 
 
 ### Actual Curves:
+
+
+
+line, = ax.plot(data["lltohadrons"]['x'], (data["lltohadrons"]['y']*1e6),":", color="grey", lw=1, alpha=0.5)
+ax.text( 2, 0.2*data["lltohadrons"]['y'][69]*1e6,
+    r"$ll \to$Hadrons",
+    color="grey", fontsize=10, verticalalignment='bottom',horizontalalignment='left'
+)
+mark_crossing(line, 10, color="grey")
+
+line, = ax.plot(data["jj"]['x'], (data["jj"]['y']*1e3),"--", color="grey", lw=1, alpha=0.5)
+ax.text( 0.95*10, 1.3*data["jj"]['y'][69]*1e3,
+    r"Total jj",
+    color="grey", fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+)
+mark_crossing(line, 10, color="grey")
+
+
+
+
 
 
 i=0
@@ -188,19 +207,31 @@ mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
 
 i=i+1
 line, = ax.plot(data["mumu"]['x'], (1000*data["mumu"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 0.95*10, 0.07*1000*data["mumu"]['y'][3],
+ax.text( 2, 1.3*10000,
     r"$\mu\mu$ ($p_{T,\mu}>10$ GeV, $|\eta_{\mu}|<2.5$)",
-    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='left'
 )
 mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
 
 
 
+
+i=i+1
+line, = ax.plot(data["vbfww"]['x'], (data["vbfww"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
+ax.text( 2, 30,
+    r"VBF $WW$",
+    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='left'
+)
+mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+
+
+
+
 i=i+1
 line, = ax.plot(data["vbftt"]['x'], (data["vbftt"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 0.95*10, 1.05*data["vbftt"]['y'][71],
+ax.text( 2, 6,
     r"VBF $t\bar{t}$",
-    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='left'
 )
 mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
 
@@ -216,22 +247,54 @@ mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
 
 
 # https://arxiv.org/pdf/2102.11292
-i=i+1
-ax.text( 0.95*10, 0.65*(2.2+0.039),
-    r"Ther. $\tilde{W}$ WIMP",
-    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='center',horizontalalignment='right'
-)
-ax.plot(10, 2.2+0.039, marker='o',clip_on=False, color=to_rgba(colors[i],alpha))
+# i=i+1
+# ax.text( 0.95*10, 0.65*(2.2+0.039),
+#     r"Ther. $\tilde{W}$ WIMP",
+#     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='center',horizontalalignment='right'
+# )
+# ax.plot(10, 2.2+0.039, marker='o',clip_on=False, color=to_rgba(colors[i],alpha))
+
+
+# i=i+1
+# ax.text( 0.95*10, 0.65*1.18436,
+#     r"Ther. $\tilde{H}$ WIMP",
+#     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='center',horizontalalignment='right'
+# )
+# ax.plot(10, 1.18436, marker='o',clip_on=False, color=to_rgba(colors[i],alpha))
 
 
 i=i+1
-ax.text( 0.95*10, 0.65*1.18436,
-    r"Ther. $\tilde{H}$ WIMP",
-    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='center',horizontalalignment='right'
+line, = ax.plot(data["thermalwimp"][0], (data["thermalwimp"][1]*1000.),"-", color=to_rgba(colors[i],alpha), lw=1)
+ax.text( 2.9, 1.05*data["thermalwimp"][1][18]*1000.,
+    r"Thermal $\tilde{H}$-like WIMP",
+    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='top',horizontalalignment='right',rotation=90
 )
-ax.plot(10, 1.18436, marker='o',clip_on=False, color=to_rgba(colors[i],alpha))
+mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
 
 
+i=i+1
+line, = ax.plot(data["thermalwimp"][0], (data["thermalwimp"][3]*1000.),"-", color=to_rgba(colors[i],alpha), lw=1)
+ax.text( 6, 1.05*data["thermalwimp"][3][18]*1000.,
+    r"Thermal $\tilde{W}$-like WIMP",
+    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='top',horizontalalignment='right', rotation=90
+)
+mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+
+
+
+
+
+
+
+
+
+i=i+1
+line, = ax.plot(data["vbfwwz"]['x'], (data["vbfwwz"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
+ax.text( 0.95*10, 1.05*data["vbfwwz"]['y'][64],
+    r"VBF $WWZ$",
+    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+)
+mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
 
 
 
@@ -263,12 +326,12 @@ mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
 
 # Labels
 
-ax.text( 1, 1e6,
+ax.text( 1, 1e10,
     r"Muon Collider Rates",
-    color="k", fontsize=18, verticalalignment='bottom',horizontalalignment='left'
+    color="k", fontsize=22, verticalalignment='bottom',horizontalalignment='left'
 )
-ax.text( 1, 0.8e6,
-    r"$\sigma$ from 2005.10289, 2102.11292,"+ "\nand MadGraph5_aMC@NLO",
+ax.text( 1, 0.8e10,
+    r"$\sigma$ from 2005.10289; 2103.09844; Z. Liu, X. Wang;"+ "\nand MadGraph5_aMC@NLO",
     color="k", fontsize=10, verticalalignment='top',horizontalalignment='left'
 )
 
@@ -311,3 +374,19 @@ fig.canvas.draw()
 
 fig.savefig("MuonColliderRates.pdf")
 # plt.show()
+
+
+
+ax.annotate(
+    'Beam-Induced Neutrino Interaction Rate',       # Text
+    xy=(10, hz_to_fb(29979)*0.44*0.21),                 # Point to annotate
+    xytext=(8, hz_to_fb(29979)*0.44*0.21),           # Position of the text (to the left)
+    arrowprops=dict(arrowstyle='-|>'), va="center", ha="right"
+)
+ax.text(8, 0.5*hz_to_fb(29979)*0.44*0.21, r'[2412.14115]',
+        fontsize=9,
+        ha='right', va='center',
+        fontfamily='serif')  # Try 'monospace' or 'sans-serif' too
+
+
+fig.savefig("MuonColliderRates_wBIN.pdf")
