@@ -377,16 +377,23 @@ fig.savefig("MuonColliderRates.pdf")
 
 
 
-ax.annotate(
-    'Beam-Induced Neutrino Interaction Rate',       # Text
-    xy=(10, hz_to_fb(29979)*0.44*0.21),                 # Point to annotate
-    xytext=(8, hz_to_fb(29979)*0.44*0.21),           # Position of the text (to the left)
-    arrowprops=dict(arrowstyle='-|>'), va="center", ha="right"
+# ax.annotate(
+#     'Beam-Induced Neutrino Interaction Rate',       # Text
+#     xy=(10, hz_to_fb(29979)*0.44*0.21),                 # Point to annotate
+#     xytext=(8, hz_to_fb(29979)*0.44*0.21),           # Position of the text (to the left)
+#     arrowprops=dict(arrowstyle='-|>'), va="center", ha="right"
+# )
+# ax.text(8, 0.5*hz_to_fb(29979)*0.44*0.21, r'[2412.14115]',
+#         fontsize=9,
+#         ha='right', va='center',
+#         fontfamily='serif')  # Try 'monospace' or 'sans-serif' too
+
+
+ax.text( 0.95*10, 0.5*hz_to_fb(29979)*0.44*0.21,
+    "Neutrino Slice Interaction\n[2412.14115]",
+    color="grey", fontsize=10, verticalalignment='top',horizontalalignment='right'
 )
-ax.text(8, 0.5*hz_to_fb(29979)*0.44*0.21, r'[2412.14115]',
-        fontsize=9,
-        ha='right', va='center',
-        fontfamily='serif')  # Try 'monospace' or 'sans-serif' too
+ax.plot(10, 0.5*hz_to_fb(29979)*0.44*0.21, marker='o',clip_on=False, color="grey")
 
 
 fig.savefig("MuonColliderRates_wBIN.pdf")
