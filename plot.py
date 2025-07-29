@@ -119,12 +119,12 @@ ax.annotate(
 
 
 
-ax.annotate(
-    '11 kHz Collision Rate (27 km)',       # Text
-    xy=(10, hz_to_fb(11245)),                 # Point to annotate
-    xytext=(8, hz_to_fb(11245)),           # Position of the text (to the left)
-    arrowprops=dict(arrowstyle='-|>'), va="center", ha="right"
-)
+#ax.annotate(
+#    '11 kHz Collision Rate (27 km)',       # Text
+#    xy=(10, hz_to_fb(11245)),                 # Point to annotate
+#    xytext=(8, hz_to_fb(11245)),           # Position of the text (to the left)
+#    arrowprops=dict(arrowstyle='-|>'), va="center", ha="right"
+#)
 
 ax.annotate(
     '30 kHz Collision Rate (10 km)',       # Text
