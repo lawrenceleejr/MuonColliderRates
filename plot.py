@@ -86,7 +86,7 @@ data["lltohadrons"] = np.genfromtxt("data/lltohadrons.txt", delimiter=",", skip_
 
 
 baselength=4
-fig, ax = plt.subplots(1,1, figsize=(1.5*baselength, 2.5*baselength))
+fig, ax = plt.subplots(1,1, figsize=(1.5*baselength, 2*baselength))
 
 
 # Add manually scaled Y axis on the right
@@ -152,8 +152,8 @@ ax.annotate(
 
 
 line, = ax.plot(data["lltohadrons"]['x'], (data["lltohadrons"]['y']*1e6),":", color="grey", lw=1, alpha=0.5)
-ax.text( 1.2, 0.15*data["lltohadrons"]['y'][69]*1e6,
-    r"$\mu\mu\to$Hadrons",
+ax.text( 1.2, 0.12*data["lltohadrons"]['y'][69]*1e6,
+    r"Incl. $\mu\mu\to$Hadrons",
     color="grey", fontsize=10, verticalalignment='bottom',horizontalalignment='left'
 )
 mark_crossing(line, 10, color="grey")
@@ -284,7 +284,7 @@ mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
 
 i=i+1
 line, = ax.plot(data["thermalwimp"][0], (data["thermalwimp"][1]*1000.),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 2.25, 1e0,
+ax.text( 2.25, 3e0,
     r"Thermal $\tilde{H}$-like WIMP",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='top',horizontalalignment='right',rotation=90
 )
@@ -293,7 +293,7 @@ mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
 
 i=i+1
 line, = ax.plot(data["thermalwimp"][0], (data["thermalwimp"][3]*1000.),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 5.7, 1e0,
+ax.text( 5.7, 3e0,
     r"Thermal $\tilde{W}$-like WIMP",
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='top',horizontalalignment='right', rotation=90
 )
