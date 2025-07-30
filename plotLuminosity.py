@@ -55,7 +55,7 @@ fig.savefig("InstantaneousLuminosity.pdf")
 '''
 
 # Plot
-fig, ax1 = plt.subplots(figsize=(10, 5))
+fig, ax1 = plt.subplots(figsize=(8, 5))
 
 # Left axis: normalized luminosity
 ax1.plot(t, L / L0, label=r'$L(t)/L(t=0)$', color='tab:blue')
@@ -66,6 +66,7 @@ ax1.set_ylabel("Fraction of Peak Value")
 #ax1.set_ylabel(r"Instantaneous Luminosity [$10^{34}$ cm$^{-2}$ s$^{-1}$]", color='tab:blue')
 ax1.tick_params(axis='y')#, labelcolor='tab:blue')
 ax1.set_ylim([0, 1.3])
+ax1.set_xlim([0, 1])
 #ax1.grid(True)
 
 # Right axis: relative BIB
@@ -81,6 +82,10 @@ lines1, labels1 = ax1.get_legend_handles_labels()
 ax1.legend(lines1, labels1, loc='upper right')
 
 #plt.title("Instantaneous Luminosity and Beam-Induced Background Over Time")
-plt.tight_layout()
+# plt.tight_layout()
 #plt.show()
+
+fig.subplots_adjust(left=0.17, right=0.95, bottom=0.08, top=0.95)
+breathe(ax1)
+
 fig.savefig("InstantaneousLuminosity.pdf")
