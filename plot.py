@@ -38,6 +38,18 @@ def mark_crossing(line, x_val, **marker_kwargs):
             ax.plot(x_val, y_cross, marker='o',clip_on=False, **marker_kwargs)
             break  # Only mark the first crossing
 
+def print_crossing(line, x_val, **marker_kwargs):
+    x_data, y_data = line.get_data()
+    # Find where x_data crosses x_val
+    for i in range(len(x_data) - 1):
+        if (x_data[i] - x_val) * (x_data[i+1] - x_val) <= 0:
+            # Linear interpolation for y at x_val
+            x0, x1 = x_data[i], x_data[i+1]
+            y0, y1 = y_data[i], y_data[i+1]
+            y_cross = y0 + (y1 - y0) * (x_val - x0) / (x1 - x0)
+            print(fb_to_hz(y_cross))
+            break  # Only mark the first crossing
+
 
 # colors = ["#FF595E",  "#1982C4", "#8AC926", "#F2CC8F", "#1982C4", "#1982C4"]
 
@@ -179,11 +191,11 @@ mark_crossing(line, 10, color="grey")
 #         fontfamily='serif')  # Try 'monospace' or 'sans-serif' too
 
 
-ax.text( 0.95*10, 0.5*hz_to_fb(29979)*0.44*0.21,
+ax.text( 0.95*10, hz_to_fb(29979)*0.44*0.21,
     "Neutrino Slice Interaction\n[2412.14115]",
     color="grey", fontsize=10, verticalalignment='top',horizontalalignment='right'
 )
-ax.plot(10, 0.5*hz_to_fb(29979)*0.44*0.21, marker='o',clip_on=False, color="grey")
+ax.plot(10, hz_to_fb(29979)*0.44*0.21, marker='o',clip_on=False, color="grey")
 
 
 
@@ -198,7 +210,8 @@ ax.text( 0.95*10, 1.05*data["vbfz"]['y'][69],
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
 mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
-
+print("VBF Z")
+print_crossing(line, 10, color=to_rgba(colors[i],alpha))
 
 
 # i=i+1
@@ -220,6 +233,8 @@ ax.text( 0.95*10, 1.05*data["vbfh"]['y'][65],
 )
 mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
 
+print("VBF H")
+print_crossing(line, 10, color=to_rgba(colors[i],alpha))
 
 
 
@@ -263,6 +278,8 @@ ax.text( 0.95*10, 1.05*data["vbfhh"]['y'][66],
 )
 mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
 
+print("VBF HH")
+print_crossing(line, 10, color=to_rgba(colors[i],alpha))
 
 
 # https://arxiv.org/pdf/2102.11292
