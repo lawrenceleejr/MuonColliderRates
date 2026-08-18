@@ -95,6 +95,7 @@ data["thermalwimp"] = np.array(thermalwimp_data)
 
 data["jj"] = np.genfromtxt("data/jj.txt", delimiter=",", skip_header=1, names=["x","y"])
 data["lltohadrons"] = np.genfromtxt("data/lltohadrons.txt", delimiter=",", skip_header=1, names=["x","y"])
+data["incoherentpairs"] = np.genfromtxt("data/incoherentpairs.txt", delimiter=",", skip_header=5, names=["x","y"])
 
 
 baselength=4
@@ -352,6 +353,13 @@ ax.text( 0.95*10, 1.05*data["vbfhhh"]['y'][73],
     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
 mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+
+
+ax.text( 0.95*10, 0.9*data["incoherentpairs"]['y'],
+    r"Incoherent $e^+e^-$ Pairs ($p_{T,e}>15$ MeV)"+"\n[guineapig_mumu]",
+    color="grey", fontsize=10, verticalalignment='top',horizontalalignment='right'
+)
+ax.plot(data["incoherentpairs"]['x'], data["incoherentpairs"]['y'], marker='o',clip_on=False, color="grey")
 
 
 

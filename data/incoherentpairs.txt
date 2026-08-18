@@ -1,0 +1,7 @@
+# Incoherent e+e- pair production from beam-beam interactions (electrons, pT > 15 MeV)
+# Computed with GuineaPig (https://github.com/lawrenceleejr/guineapig_mumu), run via its
+# published Docker image (ghcr.io/lawrenceleejr/guineapig_mumu) for the 10 TeV muon collider
+# baseline optics (5000 GeV/beam, 1.8e12 muons/bunch). Averaged over 50 simulated bunch
+# crossings: sigma_eff = N(electrons, pT > 15 MeV) / L_integrated = 1.269e7 fb.
+# columns: sqrt(s) [TeV], cross section [fb]
+10, 1.269e7
