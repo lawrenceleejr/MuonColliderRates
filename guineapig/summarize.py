@@ -165,7 +165,10 @@ def main(argv=None):
         "the detector. Beam parameters from arXiv:2407.12450 Table 1.1, Scenario 1 "
         "(Stage 1 at 3 TeV, Stage 2 at 10 TeV); see guineapig/ for the inputs and "
         "the runner. Averaged over %s. Uncertainty is the crossing-to-crossing "
-        "standard error only." % (
+        "standard error only. This file holds the effective cross section; the "
+        "figure plots it against the rate axis instead, rescaled by "
+        "L(sqrt_s)/L_nominal so each stage reads its own true rate (see "
+        "mcrates.rate_equivalent)." % (
             pt_text,
             " and ".join("%d bunch crossings at %g TeV" % (r["n_crossings"], r["sqrt_s"])
                          for r in results))

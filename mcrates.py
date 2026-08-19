@@ -178,6 +178,29 @@ def hz_to_fb(rate_hz, lumi_cm2_s=NOMINAL_LUMI_CM2_S):
     return rate_hz / lumi_cm2_s * 1e39
 
 
+def rate_equivalent(x_tev, sigma_fb):
+    """Rescale an effective cross section so one rate axis serves every stage.
+
+    The figure carries a single rate axis, fixed to the 10 TeV target luminosity.
+    A quantity that is really a rate -- the incoherent-pair curves are
+    N/L_crossing, tied to the beam parameters of one machine -- would be read
+    wrongly there at any other energy. Multiplying by L(sqrt_s)/L_nominal gives
+    the value that reproduces the true rate on that axis:
+
+        sigma' * L_nominal = sigma_eff * L(sqrt_s) = true rate
+
+    So the plotted number is a rate referred to the nominal luminosity, not the
+    effective cross section itself. Energies with no target luminosity on record
+    are left alone.
+    """
+    scaled = np.array(sigma_fb, dtype=float).copy()
+    for i, x in enumerate(np.atleast_1d(x_tev)):
+        lumi = STAGE_LUMI_CM2_S.get(round(float(x), 6))
+        if lumi is not None:
+            scaled[i] *= lumi / NOMINAL_LUMI_CM2_S
+    return scaled
+
+
 # ---------------------------------------------------------------------------
 # How each curve is drawn
 # ---------------------------------------------------------------------------
@@ -235,6 +258,9 @@ CURVES = [
         group="background",
         color=GREY,
         dash="-.",
+        # Really a rate: read against the nominal-luminosity axis (see
+        # mcrates.rate_equivalent), so the 3 TeV point is scaled by L3/L10.
+        rate_equivalent=True,
         marker="o",
         shown=True,
     ),
@@ -246,6 +272,9 @@ CURVES = [
         group="background",
         color=GREY,
         dash="-.",
+        # Really a rate: read against the nominal-luminosity axis (see
+        # mcrates.rate_equivalent), so the 3 TeV point is scaled by L3/L10.
+        rate_equivalent=True,
         marker="o",
         shown=True,
     ),

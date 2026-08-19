@@ -54,7 +54,6 @@ jobs:
           mkdir -p _site
           cp -r web/. _site/
           cp MuonColliderRates.pdf MuonColliderRates.png _site/
-          cp MuonColliderRates_3TeVRates.pdf MuonColliderRates_3TeVRates.png _site/
           # Build stamp lives here rather than in curves.json, which has to stay
           # a pure function of data/ so CI can check it.
           printf '{"commit":"%s","date":"%s"}\n' \

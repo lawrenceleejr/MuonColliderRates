@@ -15,6 +15,10 @@ number expressed as a rate at the nominal 10 TeV operating point,
 Table 1.1, Scenario 1 Stage 2). Curves are grouped into machine-induced and inclusive
 backgrounds (grey), Standard Model processes, and BSM benchmarks.
 
+The incoherent-pair curves are the one exception: they are rates rather than
+cross sections, so they are plotted to be read against the *rate* axis — see
+[below](#reading-the-pair-curves).
+
 Compiled by L. Lee and T. Holmes. Corrections and additions are welcome — see
 [Contributing](#contributing).
 
@@ -26,7 +30,7 @@ Compiled by L. Lee and T. Holmes. Corrections and additions are welcome — see
 |------|------------|
 | `data/` | One plain text file per dataset, each carrying its own provenance header |
 | `mcrates.py` | Loader for those files plus the single registry of how each curve is drawn |
-| `plot.py` | Builds `MuonColliderRates.pdf` / `.png`, plus the `_3TeVRates` variant |
+| `plot.py` | Builds `MuonColliderRates.pdf` / `.png` |
 | `plotLuminosity.py` | Builds the separate instantaneous-luminosity figure |
 | `make_web_data.py` | Exports `data/` to `web/data/curves.json` for the interactive page |
 | `web/` | Source of the GitHub Pages site |
@@ -137,6 +141,34 @@ The spectrum is steep: of the ~5.6 × 10⁵ pair leptons produced per crossing a
 10 TeV, only about one is hard enough to reach the calorimeter, and the hardest
 lepton in a typical crossing is only a few hundred MeV.
 
+### Reading the pair curves
+
+A σ_eff is only a rate once you multiply by the luminosity of the machine that
+produced it, and the two stages differ by a factor of ten. The figure has a
+single rate axis, fixed to the 10 TeV value, so plotting σ_eff directly would
+make the 3 TeV points read ten times too high on it.
+
+`mcrates.rate_equivalent` therefore scales each point by
+`L(√s) / L_nominal` before plotting, which is a no-op at 10 TeV and a factor 1/10
+at 3 TeV:
+
+```
+sigma_plotted × L_nominal  =  sigma_eff × L(√s)  =  the true rate
+```
+
+The **data files hold σ_eff** — the physical quantity, unscaled. The **figure
+plots the rate-equivalent value**, so every point on those two curves reads
+correctly against the rate axis whichever stage it belongs to. The left-hand σ
+axis is therefore *not* the effective cross section for these two curves, which
+is why the figure says so under the title.
+
+| √s | p_T threshold | σ_eff (data file) | plotted | true rate |
+|----|---------------|-------------------|---------|-----------|
+| 3 TeV | 15 MeV | 5.61 × 10¹⁰ fb | 5.61 × 10⁹ fb | 1.2 MHz |
+| 10 TeV | 15 MeV | 2.53 × 10¹¹ fb | 2.53 × 10¹¹ fb | 53 MHz |
+| 3 TeV | 1.4 GeV | 3.0 × 10⁶ fb | 3.0 × 10⁵ fb | 63 Hz |
+| 10 TeV | 1.4 GeV | 5.10 × 10⁷ fb | 5.10 × 10⁷ fb | 11 kHz |
+
 To reproduce (needs Docker; nothing else):
 
 ```bash
@@ -208,15 +240,6 @@ GuineaPig references: D. Schulte, PhD thesis, Univ. Hamburg, TESLA-97-08 (1997);
 D. Schulte, "Beam-beam simulations with GUINEA-PIG", CERN-PS-99-014-LP,
 CLIC-Note-387 (1999); C. Rimbault *et al.*, "GUINEA-PIG++", PAC'07, THPMN010
 (2007).
-
-## Reading rates off the figure
-
-The right-hand rate axis assumes the 10 TeV target luminosity. A 3 TeV collider
-runs an order of magnitude lower, so anything sitting at 3 TeV cannot be read
-against it. `MuonColliderRates_3TeVRates.pdf` is the same figure with a second
-rate axis standing at √s = 3 TeV, scaled to
-`L = 2.1 × 10³⁴ cm⁻² s⁻¹`; the two axes differ by exactly one decade. Both
-figures are published alongside the interactive page.
 
 ## Contributing
 

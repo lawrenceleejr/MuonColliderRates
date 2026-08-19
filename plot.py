@@ -69,7 +69,11 @@ def curve(key):
     if name not in datasets:
         datasets[name] = mcrates.load(name)
     dataset = datasets[name]
-    return dataset.x, dataset.column(spec.get("column", 1)), spec["color"]
+    x = dataset.x
+    y = dataset.column(spec.get("column", 1))
+    if spec.get("rate_equivalent"):
+        y = mcrates.rate_equivalent(x, y)
+    return x, y, spec["color"]
 
 
 baselength=4
@@ -160,19 +164,22 @@ x, y, color = curve("incoherentpairs")
 # No marker on the 3 TeV end: like every other curve here, only the 10 TeV
 # crossing is marked.
 line, = ax.plot(x, y, "-.", color=color, lw=1, alpha=0.5)
-# Sits just under its own curve: the band above belongs to the 40 MHz guide.
-ax.text( 0.95*10, 0.28*y[-1],
+# In the wedge under its own curve, same offset as the 1.4 GeV one below: these
+# curves are steep, so a horizontal label anywhere near them gets crossed.
+ax.text( 0.95*10, 0.015*y[-1],
     CURVES_BY_KEY["incoherentpairs"]["label"],
-    color=color, fontsize=8.5, path_effects=HALO, verticalalignment='top',horizontalalignment='right'
+    color=color, fontsize=8.5, path_effects=HALO, verticalalignment='center',horizontalalignment='right'
 )
 mark_crossing(line, 10, color=color)
 
 
 x, y, color = curve("incoherentpairsecal")
 line, = ax.plot(x, y, "-.", color=color, lw=1, alpha=0.5)
-ax.text( 1.03*x[0], 0.62*y[0],
+# In the wedge under its own curve: the curve is steep enough that a horizontal
+# label anywhere near it gets crossed.
+ax.text( 0.95*10, 0.015*y[-1],
     CURVES_BY_KEY["incoherentpairsecal"]["label"],
-    color=color, fontsize=8.5, path_effects=HALO, verticalalignment='top',horizontalalignment='left'
+    color=color, fontsize=8.5, path_effects=HALO, verticalalignment='center',horizontalalignment='right'
 )
 mark_crossing(line, 10, color=color)
 
@@ -351,11 +358,13 @@ mark_crossing(line, 10, color=to_rgba(color,alpha))
 
 source_block = ax.text(0.0, 1.012,
     r"$\sigma$ from 2005.10289; 2103.09844; 2412.14115; Z. Liu, X. Wang;"
-    + "\nModified GUINEA-PIG; and MadGraph5_aMC@NLO",
+    + "\nModified GUINEA-PIG; and MadGraph5_aMC@NLO"
+    + "\n" + r"Incoherent pairs are rates, plotted against the rate axis: the 3 TeV"
+    + "\n" + r"points use that stage's L=$2.1\times10^{34}$ cm$^{-2}$ s$^{-1}$",
     transform=ax.transAxes, color="0.35", fontsize=9,
     verticalalignment='bottom', horizontalalignment='left', linespacing=1.4
 )
-ax.set_title(r"Muon Collider Rates", loc='left', fontsize=21, color="k", pad=40)
+ax.set_title(r"Muon Collider Rates", loc='left', fontsize=21, color="k", pad=68)
 
 
 
@@ -394,59 +403,3 @@ fig.canvas.draw()
 
 fig.savefig("MuonColliderRates.pdf")
 fig.savefig("MuonColliderRates.png", dpi=200)
-
-
-# ---------------------------------------------------------------------------
-# Variant: the same figure with a second rate axis for the 3 TeV stage.
-#
-# The right-hand rate axis is only valid at 10 TeV, where the target luminosity
-# is 2.1e35 cm^-2 s^-1. A 3 TeV collider runs an order of magnitude lower
-# (2.1e34, arXiv:2407.12450 Table 1.1), so anything sitting at 3 TeV -- the left
-# end of the incoherent-pair curve in particular -- has to be read against its
-# own axis. Saved separately so the reference figure stays as it is.
-
-def fb_to_hz_3tev(cross_section_fb):
-    return mcrates.fb_to_hz(cross_section_fb, mcrates.STAGE_LUMI_CM2_S[3.0])
-
-
-def hz_to_fb_3tev(rate_hz):
-    return mcrates.hz_to_fb(rate_hz, mcrates.STAGE_LUMI_CM2_S[3.0])
-
-
-# x = 3 TeV as a fraction of the log x range, which is where the axis stands.
-xlim = ax.get_xlim()
-frac = (np.log10(3.0) - np.log10(xlim[0])) / (np.log10(xlim[1]) - np.log10(xlim[0]))
-
-ax3 = ax.secondary_yaxis(frac, functions=(fb_to_hz_3tev, hz_to_fb_3tev))
-ax3.set_yscale('log', base=10)
-# Ticks and labels sit to the right of the spine, clear of the curves coming in
-# from the left. Every other decade: this axis stands in the middle of the data,
-# so a full set would fight it.
-ax3.yaxis.set_ticks_position('right')
-ax3.yaxis.set_label_position('right')
-ax3.set_yticks([10.0 ** k for k in range(-8, 8, 2)])
-ax3.spines['left'].set_color('0.45')
-ax3.tick_params(axis='y', which='both', colors='0.45', labelsize=8.5,
-                direction='out', length=4, pad=2)
-
-# A rotated axis label would have to cross the whole figure, so name the axis
-# compactly at its top instead and spell the luminosity out in the caption.
-ax.text(3.06, 5e11, "Rate at 3 TeV [Hz]",
-    color='0.45', fontsize=9, path_effects=HALO,
-    verticalalignment='center', horizontalalignment='left'
-)
-# Spell the two luminosities out as a third line of the source block, and give
-# the title a bigger pad so the block still has room above the frame.
-source_block.set_text(
-    source_block.get_text() + "\n"
-    + r"Rate axes: L=$2.1\times10^{35}$ (10 TeV) and $2.1\times10^{34}$ (3 TeV) cm$^{-2}$ s$^{-1}$ [2407.12450]"
-)
-ax.set_title(r"Muon Collider Rates", loc='left', fontsize=21, color="k", pad=57)
-
-fig.canvas.draw()
-for label in ax3.get_yticklabels():
-    label.set_path_effects(HALO)
-
-fig.canvas.draw()
-fig.savefig("MuonColliderRates_3TeVRates.pdf")
-fig.savefig("MuonColliderRates_3TeVRates.png", dpi=200)
