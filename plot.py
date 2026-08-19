@@ -157,7 +157,9 @@ mark_crossing(line, 10, color=color)
 
 
 x, y, color = curve("incoherentpairs")
-line, = ax.plot(x, y, "-.", marker='o', markersize=3, color=color, lw=1, alpha=0.5)
+# No marker on the 3 TeV end: like every other curve here, only the 10 TeV
+# crossing is marked.
+line, = ax.plot(x, y, "-.", color=color, lw=1, alpha=0.5)
 # Sits just under its own curve: the band above belongs to the 40 MHz guide.
 ax.text( 0.95*10, 0.28*y[-1],
     CURVES_BY_KEY["incoherentpairs"]["label"],
