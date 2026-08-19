@@ -179,11 +179,9 @@ mark_crossing(line, 10, color=color)
 #         fontfamily='serif')  # Try 'monospace' or 'sans-serif' too
 
 
-# Below its own marker: the band above is only half a decade wide before the
-# inclusive-hadron curve runs through it.
-ax.text( 0.95*10, 0.72*hz_to_fb(29979)*0.44*0.21,
+ax.text( 0.95*10, hz_to_fb(29979)*0.44*0.21,
     "Neutrino Slice Interaction",
-    color="grey", fontsize=10, path_effects=HALO, verticalalignment='top',horizontalalignment='right'
+    color="grey", fontsize=10, path_effects=HALO, verticalalignment='center',horizontalalignment='right'
 )
 ax.plot(10, hz_to_fb(29979)*0.44*0.21, marker='o',clip_on=False, color="grey")
 
