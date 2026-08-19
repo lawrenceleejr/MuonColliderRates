@@ -11,7 +11,8 @@ backgrounds, and the machine reference rates on one pair of axes.
 
 The left axis is the cross section in femtobarns; the right axis is the same
 number expressed as a rate at the nominal 10 TeV operating point,
-`L = 2 × 10³⁵ cm⁻² s⁻¹`. Curves are grouped into machine-induced and inclusive
+`L = 2.1 × 10³⁵ cm⁻² s⁻¹` ([arXiv:2407.12450](https://arxiv.org/abs/2407.12450)
+Table 1.1, Scenario 1 Stage 2). Curves are grouped into machine-induced and inclusive
 backgrounds (grey), Standard Model processes, and BSM benchmarks.
 
 Compiled by L. Lee and T. Holmes. Corrections and additions are welcome — see
@@ -25,7 +26,7 @@ Compiled by L. Lee and T. Holmes. Corrections and additions are welcome — see
 |------|------------|
 | `data/` | One plain text file per dataset, each carrying its own provenance header |
 | `mcrates.py` | Loader for those files plus the single registry of how each curve is drawn |
-| `plot.py` | Builds `MuonColliderRates.pdf` / `.png` |
+| `plot.py` | Builds `MuonColliderRates.pdf` / `.png`, plus the `_3TeVRates` variant |
 | `plotLuminosity.py` | Builds the separate instantaneous-luminosity figure |
 | `make_web_data.py` | Exports `data/` to `web/data/curves.json` for the interactive page |
 | `web/` | Source of the GitHub Pages site |
@@ -129,8 +130,8 @@ statistically consistent with each other:
 | √s | crossings | p_T > 15 MeV | | p_T > 1.4 GeV | |
 |----|-----------|--------------|--|---------------|--|
 | | | leptons/crossing | σ_eff | leptons/crossing | σ_eff |
-| 3 TeV | 84 | ~223 | 5.6 × 10¹⁰ fb (~11 MHz) | ~0.012 | 3.0 × 10⁶ fb (~0.6 kHz) |
-| 10 TeV | 24 | ~7090 | 2.5 × 10¹¹ fb (~50 MHz) | ~1.3 | 4.6 × 10⁷ fb (~9 kHz) |
+| 3 TeV | 84 | ~223 | (5.61 ± 0.05) × 10¹⁰ fb | ~0.012 | (3 ± 3) × 10⁶ fb |
+| 10 TeV | 112 | ~7130 | (2.530 ± 0.003) × 10¹¹ fb | ~1.44 | (5.10 ± 0.42) × 10⁷ fb |
 
 The spectrum is steep: of the ~5.6 × 10⁵ pair leptons produced per crossing at
 10 TeV, only about one is hard enough to reach the calorimeter, and the hardest
@@ -142,14 +143,21 @@ To reproduce (needs Docker; nothing else):
 cd guineapig
 ./run_pairs.sh mumu10tev pairs10tev 24 runs/10tev 2
 ./run_pairs.sh mumu3tev  pairs3tev  24 runs/3tev  2
-# 3 TeV needs more exposure for the 1.4 GeV tail; a second batch, seeded past
-# the first, gets pooled by giving the same energy twice:
-SKIP_BASE=2 ./run_pairs.sh mumu3tev pairs3tev 60 runs/3tev-extra 4
+# The 1.4 GeV tail is rare, so both energies want more exposure. A second batch
+# seeded past the first gets pooled by giving the same energy twice:
+SKIP_BASE=2 ./run_pairs.sh mumu10tev pairs10tev 88 runs/10tev-extra 4
+SKIP_BASE=2 ./run_pairs.sh mumu3tev  pairs3tev  60 runs/3tev-extra  4
 
-PTS="3:runs/3tev 3:runs/3tev-extra 10:runs/10tev"
+PTS="3:runs/3tev 3:runs/3tev-extra 10:runs/10tev 10:runs/10tev-extra"
 python summarize.py $PTS --pt-min 0.015 --output ../data/incoherentpairs.txt
 python summarize.py $PTS --pt-min 1.4   --output ../data/incoherentpairsecal.txt
 ```
+
+`acc.dat` also carries `pairs10tev_fast` / `pairs3tev_fast`: the same physics
+switches on a half-resolution grid with a quarter of the macroparticles, about
+seven times cheaper per crossing. They reproduce the bulk numbers (stored pairs,
+`p_T > 15 MeV` count, luminosity) to about a percent, which is what makes the
+rare tail affordable — but see the caveats before using them for physics.
 
 `acc.dat` holds the beam and simulation parameters; `run_pairs.sh` runs the
 crossings (in parallel chains, carrying GuineaPig's random state forward so each
@@ -183,6 +191,15 @@ GuineaPig references: D. Schulte, PhD thesis, Univ. Hamburg, TESLA-97-08 (1997);
 D. Schulte, "Beam-beam simulations with GUINEA-PIG", CERN-PS-99-014-LP,
 CLIC-Note-387 (1999); C. Rimbault *et al.*, "GUINEA-PIG++", PAC'07, THPMN010
 (2007).
+
+## Reading rates off the figure
+
+The right-hand rate axis assumes the 10 TeV target luminosity. A 3 TeV collider
+runs an order of magnitude lower, so anything sitting at 3 TeV cannot be read
+against it. `MuonColliderRates_3TeVRates.pdf` is the same figure with a second
+rate axis standing at √s = 3 TeV, scaled to
+`L = 2.1 × 10³⁴ cm⁻² s⁻¹`; the two axes differ by exactly one decade. Both
+figures are published alongside the interactive page.
 
 ## Contributing
 

@@ -39,9 +39,14 @@ UNIT_TO_FB = {
 
 _COLUMN_RE = re.compile(r"^\s*(?P<name>[^\[]+?)\s*\[\s*(?P<unit>[^\]]+?)\s*\]\s*$")
 
-# Reference operating point used to turn a cross section into a rate.
+# Reference operating points used to turn a cross section into a rate.
+# Target luminosities from the IMCC interim report, arXiv:2407.12450 Table 1.1,
+# Scenario 1: Stage 1 (3 TeV) and Stage 2 (10 TeV). They differ by exactly a
+# factor of ten.
 NOMINAL_SQRTS_TEV = 10.0
-NOMINAL_LUMI_CM2_S = 2e35
+NOMINAL_LUMI_CM2_S = 2.1e35
+STAGE_LUMI_CM2_S = {3.0: 2.1e34, 10.0: 2.1e35}
+LUMI_SOURCE = "arXiv:2407.12450 Table 1.1, Scenario 1"
 
 
 class Dataset:

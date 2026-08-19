@@ -78,7 +78,7 @@ fig, ax = plt.subplots(1,1, figsize=(1.5*baselength, 2*baselength))
 
 # Add manually scaled Y axis on the right
 ax2 = ax.secondary_yaxis('right', functions=(fb_to_hz,hz_to_fb))
-ax2.set_ylabel(r'Rate (at $\sqrt{s}=$10 TeV, L=$2\times10^{35}$ cm$^{-2}$ s$^{-1}$) [Hz]', color='black')
+ax2.set_ylabel(r'Rate (at $\sqrt{s}=$10 TeV, L=$2.1\times10^{35}$ cm$^{-2}$ s$^{-1}$) [Hz]', color='black')
 ax2.set_yscale('log',base=10)
 # ax2.spines.right.set_position(('data', 20))
 ax2.yaxis.set_major_locator(LogLocator(base=10.0, subs=None))
@@ -349,7 +349,7 @@ mark_crossing(line, 10, color=to_rgba(color,alpha))
 # figure.autolayout, which ignores subplots_adjust but does reserve room for a
 # title -- hence set_title with a pad large enough to clear the source line.
 
-ax.text(0.0, 1.012,
+source_block = ax.text(0.0, 1.012,
     r"$\sigma$ from 2005.10289; 2103.09844; 2412.14115; Z. Liu, X. Wang;"
     + "\nModified GUINEA-PIG; and MadGraph5_aMC@NLO",
     transform=ax.transAxes, color="0.35", fontsize=9,
@@ -394,3 +394,59 @@ fig.canvas.draw()
 
 fig.savefig("MuonColliderRates.pdf")
 fig.savefig("MuonColliderRates.png", dpi=200)
+
+
+# ---------------------------------------------------------------------------
+# Variant: the same figure with a second rate axis for the 3 TeV stage.
+#
+# The right-hand rate axis is only valid at 10 TeV, where the target luminosity
+# is 2.1e35 cm^-2 s^-1. A 3 TeV collider runs an order of magnitude lower
+# (2.1e34, arXiv:2407.12450 Table 1.1), so anything sitting at 3 TeV -- the left
+# end of the incoherent-pair curve in particular -- has to be read against its
+# own axis. Saved separately so the reference figure stays as it is.
+
+def fb_to_hz_3tev(cross_section_fb):
+    return mcrates.fb_to_hz(cross_section_fb, mcrates.STAGE_LUMI_CM2_S[3.0])
+
+
+def hz_to_fb_3tev(rate_hz):
+    return mcrates.hz_to_fb(rate_hz, mcrates.STAGE_LUMI_CM2_S[3.0])
+
+
+# x = 3 TeV as a fraction of the log x range, which is where the axis stands.
+xlim = ax.get_xlim()
+frac = (np.log10(3.0) - np.log10(xlim[0])) / (np.log10(xlim[1]) - np.log10(xlim[0]))
+
+ax3 = ax.secondary_yaxis(frac, functions=(fb_to_hz_3tev, hz_to_fb_3tev))
+ax3.set_yscale('log', base=10)
+# Ticks and labels sit to the right of the spine, clear of the curves coming in
+# from the left. Every other decade: this axis stands in the middle of the data,
+# so a full set would fight it.
+ax3.yaxis.set_ticks_position('right')
+ax3.yaxis.set_label_position('right')
+ax3.set_yticks([10.0 ** k for k in range(-8, 8, 2)])
+ax3.spines['left'].set_color('0.45')
+ax3.tick_params(axis='y', which='both', colors='0.45', labelsize=8.5,
+                direction='out', length=4, pad=2)
+
+# A rotated axis label would have to cross the whole figure, so name the axis
+# compactly at its top instead and spell the luminosity out in the caption.
+ax.text(3.06, 5e11, "Rate at 3 TeV [Hz]",
+    color='0.45', fontsize=9, path_effects=HALO,
+    verticalalignment='center', horizontalalignment='left'
+)
+# Spell the two luminosities out as a third line of the source block, and give
+# the title a bigger pad so the block still has room above the frame.
+source_block.set_text(
+    source_block.get_text() + "\n"
+    + r"Rate axes: L=$2.1\times10^{35}$ (10 TeV) and $2.1\times10^{34}$ (3 TeV) cm$^{-2}$ s$^{-1}$ [2407.12450]"
+)
+ax.set_title(r"Muon Collider Rates", loc='left', fontsize=21, color="k", pad=57)
+
+fig.canvas.draw()
+for label in ax3.get_yticklabels():
+    label.set_path_effects(HALO)
+
+fig.canvas.draw()
+fig.savefig("MuonColliderRates_3TeVRates.pdf")
+fig.savefig("MuonColliderRates_3TeVRates.png", dpi=200)

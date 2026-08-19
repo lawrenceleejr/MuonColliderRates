@@ -58,7 +58,7 @@
     meta: null,
     series: [],
     view: Object.assign({}, DEFAULT_VIEW),
-    lumi: 2e35,
+    lumi: 2.1e35,
     refLines: [],
     showRefs: true,
     showInlineLabels: true,
@@ -328,7 +328,7 @@
       rtc.textContent = "Rate [Hz]";
       el("text", {
         x: (x0 + x1) / 2, y: y0 - 10, "text-anchor": "middle", class: "ref-label"
-      }, gAxes).textContent = "at L = 2 × 10³⁵ cm⁻² s⁻¹";
+      }, gAxes).textContent = "at L = 2.1 × 10³⁵ cm⁻² s⁻¹";
     } else {
       var yt = el("text", {
         x: 0, y: 0, "text-anchor": "middle", class: "axis-title",
@@ -345,7 +345,7 @@
       el("text", {
         x: 0, y: 0, "text-anchor": "middle", class: "ref-label",
         transform: "translate(" + (x1 + 76) + "," + (y0 + y1) / 2 + ") rotate(90)"
-      }, gAxes).textContent = "at L = 2 × 10³⁵ cm⁻² s⁻¹";
+      }, gAxes).textContent = "at L = 2.1 × 10³⁵ cm⁻² s⁻¹";
     }
 
     // -- reference lines
@@ -1193,7 +1193,7 @@
     })
     .then(function (payload) {
       state.meta = payload;
-      state.lumi = payload.nominal_lumi_cm2_s || 2e35;
+      state.lumi = payload.nominal_lumi_cm2_s || 2.1e35;
       state.refLines = payload.reference_lines || [];
       state.series = payload.curves.map(function (c) { return makeSeries(c, false); });
       loadCustom();

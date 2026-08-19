@@ -2,5 +2,7 @@ __pycache__/
 *.pyc
 MuonColliderRates.pdf
 MuonColliderRates.png
+MuonColliderRates_3TeVRates.pdf
+MuonColliderRates_3TeVRates.png
 InstantaneousLuminosity.pdf
 .DS_Store
