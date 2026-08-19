@@ -187,6 +187,10 @@ just a suggestion for a process worth adding — please
 
 ## Publishing
 
-The site is deployed by `.github/workflows/pages.yml` on every push to `main`.
-It needs *Settings → Pages → Source: GitHub Actions* enabled once for the
-repository.
+The site is published from a workflow, not from a branch: no `gh-pages` branch
+and no `docs/` folder are involved. `.github/workflows/pages.yml` renders the
+figure, exports the data and deploys on every push to `main`.
+
+This requires the Pages source to be set once, in
+**Settings → Pages → Build and deployment → Source: *GitHub Actions***. If it is
+left on a branch source, the deploy step fails with `Get Pages site failed`.

@@ -197,7 +197,14 @@ code, .mono { font-family: var(--mono); font-size: 0.92em; }
 #plot .axis-line { stroke: var(--ink-faint); stroke-width: 1; shape-rendering: crispEdges; }
 #plot .tick-mark { stroke: var(--ink-faint); stroke-width: 1; }
 #plot .ref-line { stroke: var(--ink-faint); stroke-width: 1; stroke-dasharray: 2 4; opacity: 0.75; }
-#plot .ref-label { font-size: 10.5px; fill: var(--ink-faint); }
+#plot .ref-label {
+  font-size: 10.5px;
+  fill: var(--ink-faint);
+  paint-order: stroke;
+  stroke: var(--panel);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
 #plot .series { fill: none; stroke-linejoin: round; stroke-linecap: round; }
 #plot .series-hit { fill: none; stroke: transparent; stroke-width: 14; cursor: pointer; }
 #plot .crosshair { stroke: var(--ink-faint); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0.7; }
@@ -208,7 +215,6 @@ code, .mono { font-family: var(--mono); font-size: 0.92em; }
   stroke-width: 3.5px;
   stroke-linejoin: round;
 }
-#plot .ref-label { paint-order: stroke; stroke: var(--panel); stroke-width: 3px; stroke-linejoin: round; }
 #plot .watermark { font-family: var(--serif); font-size: 11px; fill: var(--ink-faint); }
 
 .plot-wrap { position: relative; }
@@ -441,3 +447,48 @@ details.spec pre {
   .layout { display: block; padding: 0; }
   .card { border: 0; box-shadow: none; }
 }
+
+/* ------------------------------------------------------- curve provenance */
+
+.provenance {
+  margin: 0.4rem 0.25rem 0.15rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--rule-soft);
+  border-left: 4px solid var(--rule);
+  border-radius: 8px;
+  background: var(--panel-sunken);
+  font-size: var(--f-1);
+  color: var(--ink-soft);
+  min-height: 4.5rem;
+}
+.provenance .prov-empty { color: var(--ink-faint); }
+.provenance .prov-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.15rem;
+}
+.provenance .prov-name {
+  font-family: var(--serif);
+  font-size: var(--f1);
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.provenance .prov-actions { margin-left: auto; display: flex; gap: 0.35rem; }
+.provenance dl {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0.1rem 0.8rem;
+  margin: 0.35rem 0 0;
+}
+.provenance dt {
+  color: var(--ink-faint);
+  font-size: var(--f-2);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding-top: 0.28em;
+}
+.provenance dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.provenance dd a { word-break: break-word; }

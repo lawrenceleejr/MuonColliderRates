@@ -27,6 +27,7 @@ jobs:
 
       - name: Check web/data/curves.json is up to date
         run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           python make_web_data.py
           if ! git diff --quiet -- web/data/curves.json; then
             echo "web/data/curves.json is stale. Run 'python make_web_data.py' and commit the result." >&2

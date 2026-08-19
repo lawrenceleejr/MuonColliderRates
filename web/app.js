@@ -43,7 +43,7 @@
     hover: null,          // key of the series under the pointer
     pinned: null,         // key of the pinned series
     cursorX: null,        // data-space sqrt(s) under the pointer
-    pending: null         // parsed-but-not-yet-added custom curve
+    lastActive: null      // keeps the provenance panel populated after leaving
   };
 
   var svg = document.getElementById("plot");
@@ -356,8 +356,7 @@
           "stroke-dasharray": isActive ? null : DASHES[s.dash] || null,
           opacity: opacity
         }, gData);
-        var hit = el("path", { class: "series-hit", d: dstr, "data-key": s.key }, gHit);
-        hit.addEventListener("click", function () { togglePin(s.key); });
+        el("path", { class: "series-hit", d: dstr, "data-key": s.key }, gHit);
       }
 
       if (s.marker || s.screen.length === 1) {
@@ -367,11 +366,10 @@
           }, gData);
         });
         if (s.screen.length === 1) {
-          var dot = el("circle", {
+          el("circle", {
             cx: s.screen[0][0], cy: s.screen[0][1], r: 12,
             fill: "transparent", class: "series-hit", "data-key": s.key
           }, gHit);
-          dot.addEventListener("click", function () { togglePin(s.key); });
         }
       }
     });
@@ -478,6 +476,7 @@
     draw();
     updateReadout();
     showTooltip(evt, state.pinned || near);
+    updateProvenance(state.pinned || near);
     if (changed) syncLegendActive();
   }
 
@@ -509,6 +508,9 @@
     html += "<dt>Rate</dt><dd>" + fmtRate(fbToHz(y)) + "</dd>";
     html += "</dl>";
     if (s.process) html += '<div class="tt-note">' + escapeHtml(s.process) + "</div>";
+    if (s.source) {
+      html += '<div class="tt-note">Source: ' + escapeHtml(shorten(s.source, 130)) + "</div>";
+    }
     if (state.pinned === key) html += '<div class="tt-note">Pinned &mdash; click again to release</div>';
     tooltip.innerHTML = html;
     tooltip.style.borderLeftColor = s.color;
@@ -524,8 +526,70 @@
     tooltip.style.top = Math.max(4, ly) + "px";
   }
 
+  function shorten(text, max) {
+    text = String(text);
+    return text.length <= max ? text : text.slice(0, max - 1).replace(/[\s,;.]+$/, "") + "\u2026";
+  }
+
+  /** The "where does this curve come from" card under the figure. */
+  function updateProvenance(key) {
+    var box = document.getElementById("provenance");
+    if (key) state.lastActive = key;
+    var s = state.series.filter(function (t) { return t.key === state.lastActive; })[0];
+    if (!s) {
+      box.innerHTML = '<span class="prov-empty">Point at a curve &mdash; or click one to ' +
+        "pin it &mdash; to see where its numbers come from.</span>";
+      box.style.borderLeftColor = "";
+      return;
+    }
+    box.style.borderLeftColor = s.color;
+
+    var rows = "";
+    if (s.process) rows += "<dt>Process</dt><dd>" + escapeHtml(s.process) + "</dd>";
+    if (s.source) rows += "<dt>Source</dt><dd>" + linkify(escapeHtml(s.source)) + "</dd>";
+    if (s.notes) rows += "<dt>Notes</dt><dd>" + linkify(escapeHtml(s.notes)) + "</dd>";
+    if (s.file) {
+      rows += '<dt>Data</dt><dd><a href="' + REPO + "/blob/main/" + s.file + '" rel="noopener">' +
+        s.file + "</a></dd>";
+    }
+    if (!rows) rows = "<dt>Source</dt><dd>added in this browser &mdash; not part of the repository</dd>";
+
+    box.innerHTML =
+      '<div class="prov-head"><span class="prov-name">' + s.label + "</span>" +
+      '<span class="prov-actions">' +
+      '<button class="btn btn-mini" type="button" data-copy>Copy citation</button>' +
+      (s.file ? '<a class="btn btn-mini" href="' + REPO + "/blob/main/" + s.file +
+        '" rel="noopener">Open data file</a>' : "") +
+      "</span></div><dl>" + rows + "</dl>";
+
+    var copy = box.querySelector("[data-copy]");
+    if (copy) {
+      copy.addEventListener("click", function () {
+        var text = citationText(s);
+        var done = function () {
+          copy.textContent = "Copied";
+          setTimeout(function () { copy.textContent = "Copy citation"; }, 1600);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done, function () { window.prompt("Citation", text); });
+        } else {
+          window.prompt("Citation", text);
+        }
+      });
+    }
+  }
+
+  function citationText(s) {
+    var parts = [s.label.replace(/<[^>]+>/g, "")];
+    if (s.process) parts.push(s.process);
+    if (s.source) parts.push(s.source);
+    if (s.file) parts.push(REPO + "/blob/main/" + s.file);
+    return parts.join(". ") + ".";
+  }
+
   function togglePin(key) {
     state.pinned = state.pinned === key ? null : key;
+    updateProvenance(state.pinned || key);
     document.getElementById("pin-hint").textContent =
       state.pinned ? "Pinned — click the curve again to release" : "Click a curve to pin it";
     draw();
@@ -642,7 +706,7 @@
 
     row.addEventListener("mouseenter", function () {
       if (state.pinned) return;
-      state.hover = s.key; draw(); syncLegendActive();
+      state.hover = s.key; draw(); syncLegendActive(); updateProvenance(s.key);
     });
     row.addEventListener("mouseleave", function () {
       if (state.pinned) return;
@@ -794,6 +858,9 @@
     });
     var xmin = Math.min.apply(null, xs), xmax = Math.max.apply(null, xs);
     var ymin = Math.min.apply(null, ys), ymax = Math.max.apply(null, ys);
+    // A single point, or a flat series, would otherwise collapse the log range.
+    if (!(xmax > xmin)) { xmin /= 2; xmax *= 2; }
+    if (!(ymax > ymin)) { ymin /= 10; ymax *= 10; }
     state.view = {
       x0: Math.pow(10, Math.floor(Math.log10(xmin) * 20) / 20),
       x1: Math.pow(10, Math.ceil(Math.log10(xmax) * 20) / 20),
@@ -1022,6 +1089,14 @@
 
     svg.addEventListener("pointermove", onPointerMove);
     svg.addEventListener("pointerleave", onPointerLeave);
+    // Pin whatever the pointer is nearest, so clicking works exactly where
+    // hovering already resolves a curve -- not only on the thin hit path.
+    svg.addEventListener("click", function (evt) {
+      var p = pointerData(evt);
+      var near = nearestSeries(p.sx, p.sy);
+      if (near) togglePin(near);
+      else if (state.pinned) togglePin(state.pinned);
+    });
     window.addEventListener("resize", function () { draw(); });
   }
 
@@ -1039,11 +1114,14 @@
       state.series = payload.curves.map(function (c) { return makeSeries(c, false); });
       loadCustom();
 
-      var stamp = document.getElementById("build-stamp");
-      if (payload.generated_date) {
-        stamp.textContent = "Data as of " + payload.generated_date +
-          " (" + payload.generated_from + ")";
-      }
+      fetch("data/build.json", { cache: "no-cache" })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (build) {
+          if (!build || !build.commit) return;
+          document.getElementById("build-stamp").textContent =
+            "Built from " + build.commit + (build.date ? " on " + build.date : "");
+        })
+        .catch(function () { /* served without a build stamp; not worth saying */ });
 
       applyTheme(localStorage.getItem(THEME_KEY) || "auto");
       wireLinks();
@@ -1051,6 +1129,7 @@
       wireForm();
       buildLegend();
       buildSourceList();
+      updateProvenance(null);
       draw();
     })
     .catch(function (err) {

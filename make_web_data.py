@@ -11,21 +11,11 @@ repository contents.
 
 import json
 import os
-import subprocess
 
 import mcrates
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "web", "data", "curves.json")
-
-
-def git(*args):
-    try:
-        return subprocess.check_output(
-            ["git"] + list(args), cwd=HERE, stderr=subprocess.DEVNULL
-        ).decode().strip()
-    except Exception:
-        return ""
 
 
 def build():
@@ -85,9 +75,11 @@ def build():
         for p in mcrates.POINTS
     ]
 
+    # Deliberately free of build stamps: this file must be a pure function of
+    # data/ and mcrates.py so CI can check it against the repository contents.
+    # The commit/date shown on the page comes from data/build.json, which the
+    # Pages workflow writes at deploy time.
     return dict(
-        generated_from=git("rev-parse", "--short", "HEAD") or "working tree",
-        generated_date=git("log", "-1", "--format=%cs") or "",
         repo="https://github.com/lawrenceleejr/MuonColliderRates",
         nominal_lumi_cm2_s=mcrates.NOMINAL_LUMI_CM2_S,
         nominal_sqrts_tev=mcrates.NOMINAL_SQRTS_TEV,

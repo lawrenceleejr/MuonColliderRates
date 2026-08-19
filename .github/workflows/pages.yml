@@ -1,5 +1,10 @@
 name: Build and deploy the interactive figure
 
+# The site is published from this workflow, not from a branch. It needs
+# Settings -> Pages -> Build and deployment -> Source: "GitHub Actions"
+# (set once per repository); with a branch source, deploy-pages fails with
+# "Get Pages site failed".
+
 on:
   push:
     branches: [main]
@@ -43,6 +48,11 @@ jobs:
           mkdir -p _site
           cp -r web/. _site/
           cp MuonColliderRates.pdf MuonColliderRates.png _site/
+          # Build stamp lives here rather than in curves.json, which has to stay
+          # a pure function of data/ so CI can check it.
+          printf '{"commit":"%s","date":"%s"}\n' \
+            "$(git rev-parse --short HEAD)" \
+            "$(git log -1 --format=%cs)" > _site/data/build.json
 
       - name: Upload the site
         uses: actions/upload-pages-artifact@v3

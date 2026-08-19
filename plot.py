@@ -18,12 +18,10 @@ import matplotlib.transforms as mtrans
 from matplotlib.transforms import Affine2D
 
 
-import sys
-sys.path.insert(0, "data")
 from helperFunctions import *
 
 import mcrates
-from mcrates import CURVES_BY_KEY, POINTS, fb_to_hz, hz_to_fb
+from mcrates import CURVES_BY_KEY, fb_to_hz, hz_to_fb
 
 
 def mark_crossing(line, x_val, **marker_kwargs):
@@ -56,7 +54,7 @@ def print_crossing(line, x_val, **marker_kwargs):
 # ---------------------------------------------------------------------------
 
 datasets = {}
-X, Y = {}, {}
+
 
 def curve(key):
     """(x [TeV], sigma [fb], colour) for a curve declared in mcrates.CURVES."""
@@ -65,9 +63,7 @@ def curve(key):
     if name not in datasets:
         datasets[name] = mcrates.load(name)
     dataset = datasets[name]
-    X[key] = dataset.x
-    Y[key] = dataset.column(spec.get("column", 1))
-    return X[key], Y[key], spec["color"]
+    return dataset.x, dataset.column(spec.get("column", 1)), spec["color"]
 
 
 baselength=4

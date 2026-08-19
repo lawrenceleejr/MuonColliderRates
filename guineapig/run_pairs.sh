@@ -80,6 +80,11 @@ for (( k = 1; k <= N_CHAINS; k++ )); do
     pids+=($!)
 done
 
+if [ ${#pids[@]} -eq 0 ]; then
+    echo "nothing to run: n_events=$N_EVENTS over $N_CHAINS chain(s)" >&2
+    exit 1
+fi
+
 status=0
 for pid in "${pids[@]}"; do
     wait "$pid" || status=1
