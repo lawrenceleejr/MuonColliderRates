@@ -191,6 +191,8 @@ The site is published from a workflow, not from a branch: no `gh-pages` branch
 and no `docs/` folder are involved. `.github/workflows/pages.yml` renders the
 figure, exports the data and deploys on every push to `main`.
 
-This requires the Pages source to be set once, in
-**Settings → Pages → Build and deployment → Source: *GitHub Actions***. If it is
-left on a branch source, the deploy step fails with `Get Pages site failed`.
+The workflow's `configure-pages` step turns Pages on with the **GitHub Actions**
+source the first time it runs, so there is nothing to set by hand. If that step
+is ever removed and Pages has never been enabled, the deploy fails with
+`Get Pages site failed` / a 404 until the source is set in
+**Settings → Pages → Build and deployment**.
