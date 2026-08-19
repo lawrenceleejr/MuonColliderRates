@@ -154,12 +154,43 @@ two. For the stage's own rate, multiply by its own luminosity
 | 3 TeV | 1.4 GeV | 3.0 × 10⁶ fb | 2.1 × 10³⁴ | 63 Hz |
 | 10 TeV | 1.4 GeV | 5.10 × 10⁷ fb | 2.1 × 10³⁵ | 11 kHz |
 
-As a sanity check on the shape: from 3 to 10 TeV the 15 MeV pair cross section
-rises 4.5×, against 1.8× for the inclusive-hadron curve — the same direction and
-a comparable slope, which is what you would expect of two beam-driven yields.
-The 1.4 GeV curve rises more steeply (17×) because a fixed threshold bites much
-harder into the softer 3 TeV spectrum, though with one count at 3 TeV that slope
-is barely constrained.
+### Why these curves are steeper than the others
+
+σ_eff = N / L_crossing is a ratio of two quantities that both depend on the beam
+configuration, and they do not scale together:
+
+| per bunch crossing | 3 TeV | 10 TeV | ratio |
+|--------------------|-------|--------|-------|
+| luminosity L_crossing | 3.97 × 10³⁴ m⁻² | 2.82 × 10³⁵ m⁻² | 7.1× |
+| all pair leptons | 50 800 | 565 000 | 11.1× |
+| above 15 MeV | 223 | 7 130 | 32× |
+| above 1.4 GeV | 0.012 | 1.44 | 121× |
+
+The denominator grows 7× from geometry alone: `L ∝ N²/4πσ²`, and although the
+bunch charge falls (2.2 → 1.8 × 10¹² muons) the spot shrinks from 3 µm to 0.9 µm,
+which gives 7.4× analytically against 7.1× measured.
+
+The numerator grows much faster, and not because there are proportionally more
+pairs — the *total* is up only 11×. It is the spectrum hardening. The
+beamstrahlung parameter `Υ ∝ γN/(σ_z σ)` grows about 30× between the two stages
+(γ ×3.3, N ×0.82, σ_z ×0.3, σ ×0.3), and Table 1.1 bears that out: the mean
+beamstrahlung photon energy goes from 0.016 to 1.6 MeV, a factor of 100, with
+only 2.7× more photons per muon. Harder photons make harder pairs, so far more of
+them clear a fixed p_T cut — and the harder the cut, the larger the gain, which
+is why 1.4 GeV (121×) outruns 15 MeV (32×).
+
+Two consequences:
+
+* **Do not compare this slope with the inclusive-hadron curve.** μμ → hadrons is
+  a true cross section, a function of √s alone with no beam-parameter dependence,
+  and it rises 1.8× over the same range. σ_eff for the pairs is a
+  beam-configuration-dependent yield ratio. There is no reason for the two to
+  share a slope.
+* **The segment between the two points is not an energy scan.** It interpolates
+  across a change of machine design — spot size and bunch length both ×3.3 — so a
+  value read off it at, say, 5 TeV does not correspond to anything. Only the two
+  simulated configurations are meaningful. (The 1.4 GeV slope is in any case
+  barely constrained, resting on one count at 3 TeV.)
 
 To reproduce (needs Docker; nothing else):
 
