@@ -126,14 +126,15 @@ statistically consistent with each other:
 * **15 MeV** — roughly what it takes to get out of the beam pipe at all.
 * **1.4 GeV** — the minimum `p_T` for a particle to reach the ECAL surface.
 
-| √s | p_T > 15 MeV | | p_T > 1.4 GeV | |
-|----|--------------|--|---------------|--|
-| | leptons/crossing | σ_eff | leptons/crossing | σ_eff |
-| 3 TeV | ~220 | 5.5 × 10¹⁰ fb (~11 MHz) | ~0.04 | 1.0 × 10⁷ fb (~2 kHz) |
-| 10 TeV | ~7100 | 2.5 × 10¹¹ fb (~50 MHz) | ~1.3 | 4.6 × 10⁷ fb (~9 kHz) |
+| √s | crossings | p_T > 15 MeV | | p_T > 1.4 GeV | |
+|----|-----------|--------------|--|---------------|--|
+| | | leptons/crossing | σ_eff | leptons/crossing | σ_eff |
+| 3 TeV | 84 | ~223 | 5.6 × 10¹⁰ fb (~11 MHz) | ~0.012 | 3.0 × 10⁶ fb (~0.6 kHz) |
+| 10 TeV | 24 | ~7090 | 2.5 × 10¹¹ fb (~50 MHz) | ~1.3 | 4.6 × 10⁷ fb (~9 kHz) |
 
 The spectrum is steep: of the ~5.6 × 10⁵ pair leptons produced per crossing at
-10 TeV, only about one has enough `p_T` to reach the calorimeter.
+10 TeV, only about one is hard enough to reach the calorimeter, and the hardest
+lepton in a typical crossing is only a few hundred MeV.
 
 To reproduce (needs Docker; nothing else):
 
@@ -141,10 +142,13 @@ To reproduce (needs Docker; nothing else):
 cd guineapig
 ./run_pairs.sh mumu10tev pairs10tev 24 runs/10tev 2
 ./run_pairs.sh mumu3tev  pairs3tev  24 runs/3tev  2
-python summarize.py 3:runs/3tev 10:runs/10tev \
-    --pt-min 0.015 --output ../data/incoherentpairs.txt
-python summarize.py 3:runs/3tev 10:runs/10tev \
-    --pt-min 1.4 --output ../data/incoherentpairsecal.txt
+# 3 TeV needs more exposure for the 1.4 GeV tail; a second batch, seeded past
+# the first, gets pooled by giving the same energy twice:
+SKIP_BASE=2 ./run_pairs.sh mumu3tev pairs3tev 60 runs/3tev-extra 4
+
+PTS="3:runs/3tev 3:runs/3tev-extra 10:runs/10tev"
+python summarize.py $PTS --pt-min 0.015 --output ../data/incoherentpairs.txt
+python summarize.py $PTS --pt-min 1.4   --output ../data/incoherentpairsecal.txt
 ```
 
 `acc.dat` holds the beam and simulation parameters; `run_pairs.sh` runs the
@@ -154,14 +158,10 @@ crossing is independent) and reduces each one to a single line per threshold;
 reproduce the committed numbers exactly. The per-crossing summaries behind them
 are kept in `guineapig/runs/`.
 
-`PT_MINS` sets the thresholds. To pool extra statistics, run a second batch with
-`SKIP_BASE` past the chain count of the first — otherwise the chains replay the
-same crossings — and pass both directories for the same energy:
-
-```bash
-SKIP_BASE=2 ./run_pairs.sh mumu3tev pairs3tev 120 runs/3tev-more 4
-python summarize.py 3:runs/3tev 3:runs/3tev-more 10:runs/10tev --pt-min 1.4 ...
-```
+`PT_MINS` sets which thresholds are counted. `SKIP_BASE` must be past the chain
+count of every earlier batch: chains are decorrelated by advancing GuineaPig's
+random state (chain index − 1) times, so a second batch left at the default
+would replay the first one exactly.
 
 ### Caveats
 
@@ -172,8 +172,11 @@ The quoted uncertainty is the crossing-to-crossing standard error only.
   with `grids=1`. This barely matters at 15 MeV but is the dominant systematic at
   1.4 GeV, since the deflection is exactly what gives a pair lepton a large
   transverse kick.
-* **The 1.4 GeV tail is rare**, so it is the statistics-hungry number: the
-  hardest lepton in a typical crossing is only a few hundred MeV.
+* **The 1.4 GeV tail is rare**, so it is the statistics-hungry number. At 3 TeV
+  it rests on a single lepton above threshold in 84 crossings — quoted with a
+  100% uncertainty, and best read as an order of magnitude. The first 24
+  crossings alone gave a value 3.5× higher, which is the size of fluctuation to
+  expect from one count.
 * Grid resolution and the beam parameters themselves are not varied.
 
 GuineaPig references: D. Schulte, PhD thesis, Univ. Hamburg, TESLA-97-08 (1997);
