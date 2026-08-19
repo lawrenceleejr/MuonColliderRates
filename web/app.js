@@ -27,8 +27,30 @@
   };
 
   var DEFAULT_VIEW = { x0: 1, x1: 10, y0: 1e-4, y1: 1e12 };
-  var W = 940, H = 660;
+
+  // The SVG user unit is kept equal to one CSS pixel, so every font size below
+  // renders at its stated size whatever the screen width. Geometry is measured
+  // from the container on each draw; `compact` is the phone-sized layout.
+  var W = 940, H = 660, compact = false;
   var M = { top: 26, right: 118, bottom: 54, left: 78 };
+
+  function layout() {
+    var wrap = svg.parentNode;
+    var avail = Math.round(wrap.clientWidth || 940);
+    W = clamp(avail, 260, 1200);
+    compact = W < 620;
+    if (compact) {
+      H = clamp(Math.round(W * 1.25), 400, 620);
+      M = { top: 44, right: 46, bottom: 40, left: 44 };
+    } else {
+      H = clamp(Math.round(W * 0.7), 420, 720);
+      M = { top: 26, right: 118, bottom: 54, left: 78 };
+    }
+    svg.classList.toggle("compact", compact);
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    svg.setAttribute("width", W);
+    svg.setAttribute("height", H);
+  }
 
   var UNIT_TO_FB = { fb: 1, pb: 1e3, nb: 1e6, ub: 1e9, "µb": 1e9, mb: 1e12, b: 1e15 };
 
@@ -232,9 +254,7 @@
       if (node.nodeName !== "title" && node.nodeName !== "desc") svg.removeChild(node);
     });
 
-    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
-    svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
-
+    layout();
     var v = state.view;
     var gGrid = el("g", { class: "g-grid" }, svg);
     var gAxes = el("g", { class: "g-axes" }, svg);
@@ -247,11 +267,13 @@
     var x0 = M.left, x1 = W - M.right, y0 = M.top, y1 = H - M.bottom;
 
     // -- y grid + left axis
-    decades(v.y0, v.y1).forEach(function (d) {
+    var yDecades = decades(v.y0, v.y1);
+    var yStep = compact ? 2 : 1;
+    yDecades.forEach(function (d, i) {
       var y = scaleY(Math.pow(10, d));
       el("line", { class: "grid-line", x1: x0, x2: x1, y1: y, y2: y }, gGrid);
       el("line", { class: "tick-mark", x1: x0 - 5, x2: x0, y1: y, y2: y }, gAxes);
-      powerLabel(gAxes, x0 - 9, y + 4, d, "end", "tick-label");
+      if (i % yStep === 0) powerLabel(gAxes, x0 - 7, y + 3.5, d, "end", "tick-label");
     });
 
     // -- x grid + bottom axis
@@ -283,37 +305,48 @@
 
     // -- right axis: the same numbers as a rate
     var rateLo = fbToHz(v.y0), rateHi = fbToHz(v.y1);
-    decades(rateLo, rateHi).forEach(function (d) {
+    decades(rateLo, rateHi).forEach(function (d, i) {
       var sigma = Math.pow(10, d) / (1e-39 * state.lumi);
       var y = scaleY(sigma);
       if (y < y0 - 1 || y > y1 + 1) return;
       el("line", { class: "tick-mark", x1: x1, x2: x1 + 5, y1: y, y2: y }, gAxes);
-      powerLabel(gAxes, x1 + 9, y + 4, d, "start", "tick-label");
+      if (i % yStep === 0) powerLabel(gAxes, x1 + 7, y + 3.5, d, "start", "tick-label");
     });
 
     var xt = el("text", {
-      x: (x0 + x1) / 2, y: H - 14, "text-anchor": "middle", class: "axis-title"
+      x: (x0 + x1) / 2, y: H - (compact ? 8 : 14), "text-anchor": "middle", class: "axis-title"
     }, gAxes);
     el("tspan", { "font-style": "italic" }, xt).textContent = "√s";
     el("tspan", {}, xt).textContent = "  [TeV]";
 
-    var yt = el("text", {
-      x: 0, y: 0, "text-anchor": "middle", class: "axis-title",
-      transform: "translate(" + (x0 - 46) + "," + (y0 + y1) / 2 + ") rotate(-90)"
-    }, gAxes);
-    el("tspan", { "font-style": "italic" }, yt).textContent = "σ";
-    el("tspan", {}, yt).textContent = "  [fb]";
+    if (compact) {
+      // No room for rotated titles beside 44 px margins: sit them over the frame.
+      var lt = el("text", { x: x0 - 6, y: y0 - 24, "text-anchor": "start", class: "axis-title" }, gAxes);
+      el("tspan", { "font-style": "italic" }, lt).textContent = "σ";
+      el("tspan", {}, lt).textContent = " [fb]";
+      var rtc = el("text", { x: x1 + 6, y: y0 - 24, "text-anchor": "end", class: "axis-title" }, gAxes);
+      rtc.textContent = "Rate [Hz]";
+      el("text", {
+        x: (x0 + x1) / 2, y: y0 - 10, "text-anchor": "middle", class: "ref-label"
+      }, gAxes).textContent = "at L = 2 × 10³⁵ cm⁻² s⁻¹";
+    } else {
+      var yt = el("text", {
+        x: 0, y: 0, "text-anchor": "middle", class: "axis-title",
+        transform: "translate(" + (x0 - 46) + "," + (y0 + y1) / 2 + ") rotate(-90)"
+      }, gAxes);
+      el("tspan", { "font-style": "italic" }, yt).textContent = "σ";
+      el("tspan", {}, yt).textContent = "  [fb]";
 
-    var rt = el("text", {
-      x: 0, y: 0, "text-anchor": "middle", class: "axis-title",
-      transform: "translate(" + (x1 + 62) + "," + (y0 + y1) / 2 + ") rotate(90)"
-    }, gAxes);
-    rt.textContent = "Rate [Hz]";
-    var rt2 = el("text", {
-      x: 0, y: 0, "text-anchor": "middle", class: "ref-label",
-      transform: "translate(" + (x1 + 76) + "," + (y0 + y1) / 2 + ") rotate(90)"
-    }, gAxes);
-    rt2.textContent = "at L = 2 × 10³⁵ cm⁻² s⁻¹";
+      var rt = el("text", {
+        x: 0, y: 0, "text-anchor": "middle", class: "axis-title",
+        transform: "translate(" + (x1 + 62) + "," + (y0 + y1) / 2 + ") rotate(90)"
+      }, gAxes);
+      rt.textContent = "Rate [Hz]";
+      el("text", {
+        x: 0, y: 0, "text-anchor": "middle", class: "ref-label",
+        transform: "translate(" + (x1 + 76) + "," + (y0 + y1) / 2 + ") rotate(90)"
+      }, gAxes).textContent = "at L = 2 × 10³⁵ cm⁻² s⁻¹";
+    }
 
     // -- reference lines
     if (state.showRefs) {
@@ -374,7 +407,7 @@
       }
     });
 
-    if (state.showInlineLabels) drawInlineLabels(gLabels, list, active);
+    if (state.showInlineLabels && !compact) drawInlineLabels(gLabels, list, active);
     if (state.cursorX !== null) drawCursor(gCursor, active);
   }
 
@@ -445,7 +478,7 @@
   }
 
   function nearestSeries(sx, sy) {
-    var best = null, bestD = 42;
+    var best = null, bestD = compact ? 28 : 42;
     visible().forEach(function (s) {
       var pts = s.screen;
       if (!pts.length) return;
@@ -480,7 +513,11 @@
     if (changed) syncLegendActive();
   }
 
-  function onPointerLeave() {
+  function onPointerLeave(evt) {
+    // A tap fires pointerleave the moment the finger lifts. Clearing the
+    // readout there would make the value flash and vanish, so touch keeps it
+    // until the next tap.
+    if (evt && evt.pointerType && evt.pointerType !== "mouse") return;
     state.hover = null;
     state.cursorX = null;
     draw();
@@ -507,17 +544,32 @@
     html += "<dt>&sigma;</dt><dd>" + fmtValue(y, "fb") + "</dd>";
     html += "<dt>Rate</dt><dd>" + fmtRate(fbToHz(y)) + "</dd>";
     html += "</dl>";
-    if (s.process) html += '<div class="tt-note">' + escapeHtml(s.process) + "</div>";
-    if (s.source) {
-      html += '<div class="tt-note">Source: ' + escapeHtml(shorten(s.source, 130)) + "</div>";
+    // On a phone the card is docked over the chart, and the provenance panel
+    // right below already carries the process and source -- so keep it to the
+    // numbers and stay out of the way.
+    if (!compact) {
+      if (s.process) html += '<div class="tt-note">' + escapeHtml(s.process) + "</div>";
+      if (s.source) {
+        html += '<div class="tt-note">Source: ' + escapeHtml(shorten(s.source, 130)) + "</div>";
+      }
+      if (state.pinned === key) {
+        html += '<div class="tt-note">Pinned &mdash; click again to release</div>';
+      }
     }
-    if (state.pinned === key) html += '<div class="tt-note">Pinned &mdash; click again to release</div>';
     tooltip.innerHTML = html;
     tooltip.style.borderLeftColor = s.color;
     tooltip.classList.add("visible");
 
     var wrap = svg.parentNode.getBoundingClientRect();
     var tw = tooltip.offsetWidth, th = tooltip.offsetHeight;
+    if (compact) {
+      // Docked under the finger's reach rather than following it around.
+      tooltip.style.left = "4px";
+      tooltip.style.right = "4px";
+      tooltip.style.top = "4px";
+      return;
+    }
+    tooltip.style.right = "auto";
     var lx = evt.clientX - wrap.left + 16;
     var ly = evt.clientY - wrap.top - th - 12;
     if (lx + tw > wrap.width - 4) lx = evt.clientX - wrap.left - tw - 16;
@@ -1100,6 +1152,11 @@
 
     svg.addEventListener("pointermove", onPointerMove);
     svg.addEventListener("pointerleave", onPointerLeave);
+    // A touch that lands on a curve should read it out, but the page must still
+    // scroll: pan-y in CSS lets vertical drags through, so only cancel the rest.
+    svg.addEventListener("pointerdown", function (evt) {
+      if (evt.pointerType !== "mouse") onPointerMove(evt);
+    });
     // Pin whatever the pointer is nearest, so clicking works exactly where
     // hovering already resolves a curve -- not only on the thin hit path.
     svg.addEventListener("click", function (evt) {
@@ -1108,7 +1165,23 @@
       if (near) togglePin(near);
       else if (state.pinned) togglePin(state.pinned);
     });
-    window.addEventListener("resize", function () { draw(); });
+    var redraw = function () { draw(); };
+    if (window.ResizeObserver) {
+      // Only width matters, and drawing changes the height -- reacting to that
+      // would feed the observer its own output.
+      var lastWidth = svg.parentNode.clientWidth;
+      new ResizeObserver(function () {
+        var w = svg.parentNode.clientWidth;
+        if (w === lastWidth) return;
+        lastWidth = w;
+        redraw();
+      }).observe(svg.parentNode);
+    } else {
+      window.addEventListener("resize", redraw);
+    }
+    window.addEventListener("orientationchange", function () {
+      setTimeout(redraw, 120);
+    });
   }
 
   // ------------------------------------------------------------------ boot

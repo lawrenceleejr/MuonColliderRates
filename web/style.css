@@ -188,7 +188,7 @@ code, .mono { font-family: var(--mono); font-size: 0.92em; }
   color: var(--ink-faint);
 }
 
-#plot { display: block; width: 100%; height: auto; touch-action: none; }
+#plot { display: block; width: 100%; height: auto; max-width: 100%; touch-action: pan-y; }
 
 #plot text { font-family: var(--sans); fill: var(--ink-soft); }
 #plot .axis-title { font-family: var(--serif); font-size: 13px; fill: var(--ink); }
@@ -217,6 +217,11 @@ code, .mono { font-family: var(--mono); font-size: 0.92em; }
 }
 #plot .watermark { font-family: var(--serif); font-size: 11px; fill: var(--ink-faint); }
 
+#plot.compact .tick-label { font-size: 9.5px; }
+#plot.compact .axis-title { font-size: 11px; }
+#plot.compact .ref-label { font-size: 9px; }
+#plot.compact .series-hit { stroke-width: 22; }   /* fingers are not mice */
+
 .plot-wrap { position: relative; }
 
 #tooltip {
@@ -240,7 +245,13 @@ code, .mono { font-family: var(--mono); font-size: 0.92em; }
 #tooltip dl { display: grid; grid-template-columns: auto 1fr; gap: 0.1rem 0.6rem; margin: 0; }
 #tooltip dt { color: var(--ink-faint); }
 #tooltip dd { margin: 0; font-family: var(--mono); font-size: 0.9em; color: var(--ink); }
-#tooltip .tt-note { margin-top: 0.35rem; color: var(--ink-faint); font-size: 0.92em; line-height: 1.35; }
+#tooltip .tt-note {
+  margin-top: 0.35rem;
+  color: var(--ink-faint);
+  font-size: 0.92em;
+  line-height: 1.35;
+  overflow-wrap: anywhere;   /* long source URLs must not blow the card open */
+}
 
 /* --------------------------------------------------------------- sidebar */
 
@@ -493,10 +504,30 @@ details.spec pre {
 .provenance dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
 .provenance dd a { word-break: break-word; }
 
-/* On narrow screens a 1:0.7 log-log figure squeezed to 380 px is unreadable;
-   give it a floor and let it scroll inside its own box instead of the page. */
-@media (max-width: 700px) {
-  .plot-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  #plot { min-width: 620px; }
-  .figure-card { padding: 0.6rem 0.5rem 0.4rem; }
+/* -------------------------------------------------------------- phone tuning
+   The chart itself re-lays out in JS (see `compact` in app.js); this is the
+   surrounding furniture. */
+
+@media (max-width: 720px) {
+  .masthead-inner { padding: 1.1rem 1rem 0.9rem; }
+  .masthead h1 { font-size: var(--f3); }
+  .masthead nav { margin-left: 0; width: 100%; }
+  .layout { padding: 0.85rem 0.7rem 2rem; gap: 0.85rem; }
+  .prose-section { padding: 0 0.7rem 2.5rem; }
+  .prose-grid { gap: 0.85rem; }
+  .prose-card { padding: 1.1rem 1rem 1.2rem; }
+  .figure-card { padding: 0.5rem 0.4rem 0.35rem; }
+  .figure-toolbar { gap: 0.3rem; padding-bottom: 0.5rem; }
+  .figure-toolbar .hint { display: none; }
+  /* End-of-curve labels are suppressed in the compact chart, so its toggle
+     would do nothing. */
+  #toggle-labels-wrap { display: none; }
+  .masthead .standfirst { font-size: var(--f-1); }
+  .legend { max-height: none; }
+  .legend-item { padding: 0.38rem 0.45rem; }   /* comfortable tap target */
+  .panel-head { padding: 0.65rem 0.75rem; }
+  .adder { padding: 0.75rem; }
+  .colophon-inner { padding: 1.1rem 1rem 2rem; }
+  #tooltip { max-width: none; padding: 0.45rem 0.6rem; }
+  #tooltip dl { grid-template-columns: auto 1fr; gap: 0 0.5rem; }
 }

@@ -225,8 +225,8 @@ CURVES = [
     dict(
         key="incoherentpairs",
         dataset="incoherentpairs",
-        label=r"Incoherent $e^+e^-$ Pairs ($p_{T,e}>15$ MeV)",
-        html_label="Incoherent e<sup>+</sup>e<sup>&minus;</sup> pairs (p<sub>T,e</sub> &gt; 15 MeV)",
+        label=r"Incoh. $ee$ ($p_{T,e}>15$ MeV)",
+        html_label="Incoh. ee (p<sub>T,e</sub> &gt; 15 MeV)",
         group="background",
         color=GREY,
         dash="-.",
