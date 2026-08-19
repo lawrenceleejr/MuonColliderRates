@@ -168,6 +168,15 @@ ax.text( 0.95*10, 0.28*y[-1],
 mark_crossing(line, 10, color=color)
 
 
+x, y, color = curve("incoherentpairsecal")
+line, = ax.plot(x, y, "-.", color=color, lw=1, alpha=0.5)
+ax.text( 1.03*x[0], 0.62*y[0],
+    CURVES_BY_KEY["incoherentpairsecal"]["label"],
+    color=color, fontsize=8.5, path_effects=HALO, verticalalignment='top',horizontalalignment='left'
+)
+mark_crossing(line, 10, color=color)
+
+
 
 # ax.annotate(
 #     'Beam-Induced Neutrino Interaction Rate',       # Text

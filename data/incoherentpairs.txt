@@ -1,7 +1,7 @@
 # title: Incoherent e+e- pairs
 # process: incoherent e+ e- pair production in the mu+ mu- beam-beam interaction, p_T(e) > 15 MeV
 # source: Modified GUINEA-PIG (muon beams), run from ghcr.io/lawrenceleejr/guineapig_mumu; private communication. GUINEA-PIG: D. Schulte, PhD thesis, Univ. Hamburg, TESLA-97-08 (1997); D. Schulte, 'Beam-beam simulations with GUINEA-PIG', CERN-PS-99-014-LP, CLIC-Note-387 (1999); C. Rimbault et al., 'GUINEA-PIG++', PAC'07, THPMN010 (2007)
-# notes: effective cross section sigma_eff = N(e+-, p_T > 15 MeV) / L_crossing, so that sigma_eff x L_collider is the true rate of pair leptons entering the detector. Beam parameters from arXiv:2407.12450 Table 1.1, Scenario 1 (Stage 1 at 3 TeV, Stage 2 at 10 TeV); see guineapig/ for the inputs and the runner. Averaged over 16 bunch crossings at 3 TeV and 16 bunch crossings at 10 TeV. Uncertainty is the crossing-to-crossing standard error only.
+# notes: effective cross section sigma_eff = N(e+-, p_T > 15 MeV) / L_crossing, so that sigma_eff x L_collider is the true rate of pair leptons entering the detector. Beam parameters from arXiv:2407.12450 Table 1.1, Scenario 1 (Stage 1 at 3 TeV, Stage 2 at 10 TeV); see guineapig/ for the inputs and the runner. Averaged over 24 bunch crossings at 3 TeV and 24 bunch crossings at 10 TeV. Uncertainty is the crossing-to-crossing standard error only.
 # columns: sqrt_s [TeV], sigma [fb], stat_unc [fb]
-3, 5.4631e+10, 1.17e+09
-10, 2.521e+11, 7.04e+08
+3, 5.5071e+10, 9.23e+08
+10, 2.5157e+11, 5.77e+08

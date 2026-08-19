@@ -234,6 +234,17 @@ CURVES = [
         shown=True,
     ),
     dict(
+        key="incoherentpairsecal",
+        dataset="incoherentpairsecal",
+        label=r"Incoh. $ee$ ($p_{T,e}>1.4$ GeV)",
+        html_label="Incoh. ee (p<sub>T,e</sub> &gt; 1.4 GeV)",
+        group="background",
+        color=GREY,
+        dash="-.",
+        marker="o",
+        shown=True,
+    ),
+    dict(
         key="vbfz",
         dataset="vbfz",
         label=r"VBF Z",

@@ -6,7 +6,16 @@
 #
 #   ./run_pairs.sh <accelerator> <parameter-set> <n_events> <out-dir> [n_chains]
 #
+# SKIP_BASE offsets the per-chain seed advance. Chains are decorrelated by
+# advancing the random state (chain index - 1) times, so a second batch started
+# with the default would replay the first one exactly; set SKIP_BASE past the
+# chain count of every earlier batch to accumulate independent statistics.
+#
 # e.g.  ./run_pairs.sh mumu10tev pairs10tev 16 out/10tev 2
+#
+# PT_MINS lists the p_T thresholds (GeV) to count at -- every threshold is
+# evaluated on the same crossings in one pass, so the resulting curves are
+# statistically consistent with each other.
 #
 # Accelerators and parameter sets come from acc.dat next to this script, which
 # is mounted over the one baked into the image. Everything runs inside
@@ -17,18 +26,22 @@
 # statistically independent. Chains are seeded apart from each other by advancing
 # that state a different number of times first, then run in parallel.
 #
-# Output: <out-dir>/summary.txt, one line per bunch crossing
-#   chain event n_pairs_stored n_pairs_above_pt lumi_ee_m2
+# Output: <out-dir>/summary.txt, one line per bunch crossing, with a
+# "# columns:" header naming the p_T threshold behind each count:
+#   chain, event, n_stored, lumi_m2, n_pt_<threshold>, ...
 set -euo pipefail
 
 IMAGE="${IMAGE:-ghcr.io/lawrenceleejr/guineapig_mumu:latest}"
-PT_MIN="${PT_MIN:-0.015}"   # GeV
+# 0.015 GeV: pair leptons that get out of the beam pipe at all.
+# 1.4   GeV: the minimum p_T for a particle to reach the ECAL surface.
+PT_MINS="${PT_MINS:-0.015 1.4}"   # GeV
 
 ACCELERATOR="${1:?usage: run_pairs.sh <accelerator> <params> <n_events> <out-dir> [n_chains]}"
 PARAMS="${2:?missing parameter set}"
 N_EVENTS="${3:?missing number of events}"
 OUT_DIR="${4:?missing output directory}"
 N_CHAINS="${5:-2}"
+SKIP_BASE="${SKIP_BASE:-0}"
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 mkdir -p "$OUT_DIR"
@@ -39,8 +52,11 @@ cp "$HERE/acc.dat" "$OUT_DIR/acc.dat"
 per_chain=$(( N_EVENTS / N_CHAINS ))
 remainder=$(( N_EVENTS % N_CHAINS ))
 
+COLUMNS="chain, event, n_stored, lumi_m2"
+for pt in $PT_MINS; do COLUMNS="$COLUMNS, n_pt_$pt"; done
+
 echo "GuineaPig: $N_EVENTS crossing(s) of '$PARAMS' on '$ACCELERATOR'"
-echo "           $N_CHAINS parallel chain(s), p_T > $PT_MIN GeV, output in $OUT_DIR"
+echo "           $N_CHAINS parallel chain(s), p_T > {$PT_MINS} GeV, output in $OUT_DIR"
 
 pids=()
 for (( k = 1; k <= N_CHAINS; k++ )); do
@@ -49,8 +65,8 @@ for (( k = 1; k <= N_CHAINS; k++ )); do
     (( events > 0 )) || continue
 
     docker run --rm -v "$OUT_DIR":/work -w /work \
-        -e CHAIN="$k" -e SKIP="$(( k - 1 ))" -e EVENTS="$events" \
-        -e ACCELERATOR="$ACCELERATOR" -e PARAMS="$PARAMS" -e PT_MIN="$PT_MIN" \
+        -e CHAIN="$k" -e SKIP="$(( SKIP_BASE + k - 1 ))" -e EVENTS="$events" \
+        -e ACCELERATOR="$ACCELERATOR" -e PARAMS="$PARAMS" -e PT_MINS="$PT_MINS" \
         --entrypoint /bin/bash "$IMAGE" -c '
             set -euo pipefail
             mkdir -p "chain$CHAIN" && cd "chain$CHAIN"
@@ -66,12 +82,15 @@ for (( k = 1; k <= N_CHAINS; k++ )); do
             for (( i = 1; i <= EVENTS; i++ )); do
                 ./guinea_nofftw "$ACCELERATOR" "$PARAMS" crossing.out > "log$i.txt" 2>&1
                 lumi=$(sed -n "s/^lumi_ee=\(.*\);/\1/p" crossing.out | head -1)
-                awk -v chain="$CHAIN" -v ev="$i" -v lumi="$lumi" -v ptmin="$PT_MIN" '"'"'
+                awk -v chain="$CHAIN" -v ev="$i" -v lumi="$lumi" -v ptmins="$PT_MINS" '"'"'
+                    BEGIN { nthr = split(ptmins, thr, /[ ,]+/) }
                     { e = ($1 < 0) ? -$1 : $1
                       pt = e * sqrt($2*$2 + $3*$3)
                       n++
-                      if (pt > ptmin) m++ }
-                    END { printf "%s %s %d %d %s\n", chain, ev, n+0, m+0, lumi }
+                      for (t = 1; t <= nthr; t++) if (pt > thr[t] + 0) count[t]++ }
+                    END { line = chain " " ev " " n+0 " " lumi
+                          for (t = 1; t <= nthr; t++) line = line " " count[t]+0
+                          print line }
                 '"'"' pairs0.dat >> "../summary.chain$CHAIN.txt"
                 echo "chain $CHAIN: crossing $i/$EVENTS done ($(tail -1 "../summary.chain$CHAIN.txt"))"
                 rm -f pairs0.dat
@@ -90,6 +109,10 @@ for pid in "${pids[@]}"; do
     wait "$pid" || status=1
 done
 
-cat "$OUT_DIR"/summary.chain*.txt > "$OUT_DIR/summary.txt"
-echo "$(wc -l < "$OUT_DIR/summary.txt") crossing(s) written to $OUT_DIR/summary.txt"
+{
+    echo "# accelerator: $ACCELERATOR, parameters: $PARAMS, skip_base: $SKIP_BASE"
+    echo "# columns: $COLUMNS"
+    cat "$OUT_DIR"/summary.chain*.txt
+} > "$OUT_DIR/summary.txt"
+echo "$(grep -vc '^#' "$OUT_DIR/summary.txt") crossing(s) written to $OUT_DIR/summary.txt"
 exit $status
