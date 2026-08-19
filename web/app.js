@@ -931,14 +931,25 @@
     var css = document.createElementNS(NS, "style");
     var dark = getComputedStyle(document.body).backgroundColor;
     var ink = getComputedStyle(document.body).color;
+    // Read the live colours rather than hard-coding them, so a dark-theme
+    // export does not come out with light-theme grid lines.
+    var strokeOf = function (selector, fallback) {
+      var node = svg.querySelector(selector);
+      return node ? getComputedStyle(node).stroke : fallback;
+    };
+    var gridStroke = strokeOf(".grid-line", "#e0e3e6");
+    var axisStroke = strokeOf(".axis-line", "#8a9098");
     css.textContent =
       "text{font-family:'Source Sans 3',Helvetica,Arial,sans-serif;fill:" + ink + "}" +
       ".axis-title{font-family:'Source Serif 4',Georgia,serif;font-size:13px}" +
       ".tick-label{font-size:11px}" +
-      ".grid-line{stroke:#e0e3e6;stroke-width:1}" +
-      ".axis-line,.tick-mark{stroke:#8a9098;stroke-width:1}" +
-      ".ref-line{stroke:#8a9098;stroke-width:1;stroke-dasharray:2 4;opacity:.75}" +
+      ".grid-line{stroke:" + gridStroke + ";stroke-width:1}" +
+      ".axis-line,.tick-mark{stroke:" + axisStroke + ";stroke-width:1}" +
+      ".ref-line{stroke:" + axisStroke + ";stroke-width:1;stroke-dasharray:2 4;opacity:.75}" +
       ".ref-label,.inline-label{font-size:11px}" +
+      // Same knockout halo the page uses, so labels stay legible over curves.
+      ".ref-label,.inline-label{paint-order:stroke;stroke:" + dark +
+      ";stroke-width:3.2px;stroke-linejoin:round}" +
       ".series{fill:none;stroke-linejoin:round;stroke-linecap:round}";
     clone.insertBefore(css, clone.firstChild);
     var bg = document.createElementNS(NS, "rect");

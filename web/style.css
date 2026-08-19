@@ -492,3 +492,11 @@ details.spec pre {
 }
 .provenance dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
 .provenance dd a { word-break: break-word; }
+
+/* On narrow screens a 1:0.7 log-log figure squeezed to 380 px is unreadable;
+   give it a floor and let it scroll inside its own box instead of the page. */
+@media (max-width: 700px) {
+  .plot-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  #plot { min-width: 620px; }
+  .figure-card { padding: 0.6rem 0.5rem 0.4rem; }
+}
