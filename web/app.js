@@ -227,11 +227,9 @@
   // ----------------------------------------------------------------- chart
 
   function draw() {
-    while (svg.firstChild && svg.firstChild.nodeName !== "title" && svg.firstChild.nodeName !== "desc") {
-      svg.removeChild(svg.firstChild);
-    }
-    Array.prototype.slice.call(svg.querySelectorAll("g,rect,path,line,text,circle")).forEach(function (n) {
-      n.parentNode.removeChild(n);
+    // Rebuild from scratch, but keep <title>/<desc> for assistive tech.
+    Array.prototype.slice.call(svg.childNodes).forEach(function (node) {
+      if (node.nodeName !== "title" && node.nodeName !== "desc") svg.removeChild(node);
     });
 
     svg.setAttribute("viewBox", "0 0 " + W + " " + H);
@@ -346,7 +344,7 @@
       var faded = active && active !== s.key;
       var isActive = active === s.key;
       var base = s.group === "background" ? 1.4 : 1.8;
-      var opacity = faded ? 0.14 : (s.group === "background" ? 0.75 : 1);
+      var opacity = faded ? 0.3 : (s.group === "background" ? 0.75 : 1);
 
       if (s.screen.length > 1) {
         var dstr = s.screen.map(function (p, i) {
@@ -404,9 +402,12 @@
       var faded = active && active !== p.s.key;
       var t = el("text", {
         x: p.x, y: p.y + 3.5, "text-anchor": "end", class: "inline-label",
-        fill: p.s.color, opacity: faded ? 0.16 : 0.95,
+        opacity: faded ? 0.28 : 0.95,
         "font-weight": active === p.s.key ? 700 : 400
       }, parent);
+      // Inline style, not a fill attribute: the stylesheet's `#plot text` rule
+      // would otherwise win over a presentation attribute.
+      t.style.fill = p.s.color;
       setSvgLabel(t, p.s.label);
     });
   }
