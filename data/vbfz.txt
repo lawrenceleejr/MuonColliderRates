@@ -1,4 +1,7 @@
-# https://indico.cern.ch/event/1564581/contributions/6591806/attachments/3097402/5487468/GGI-course-slides.pdf
+# title: VBF Z
+# process: mu+ mu- -> Z nu nubar (vector-boson fusion)
+# source: https://indico.cern.ch/event/1564581/contributions/6591806/attachments/3097402/5487468/GGI-course-slides.pdf (GGI lectures; digitised)
+# columns: sqrt_s [TeV], sigma [fb]
 1.0144931295661115, 883.3407454482787
 1.049350284931249, 928.6951375573958
 1.0854114103775292, 963.0397296579569

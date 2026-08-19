@@ -1,2 +1,7 @@
-5,100e3
-10,100e3
+# title: Reference collision rate
+# process: nominal bunch-crossing rate reference line
+# source: reference value; reproduced in the figure as an annotated guide line
+# notes: not a cross section; excluded from the interactive figure
+# columns: sqrt_s [TeV], rate [Hz]
+5, 100e3
+10, 100e3

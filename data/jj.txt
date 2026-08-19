@@ -1,4 +1,7 @@
-# https://arxiv.org/pdf/2103.09844 fig 5b
+# title: Dijets
+# process: mu+ mu- -> j j, p_T(j) > 5-7 GeV, |eta(j)| < 3.13
+# source: https://arxiv.org/abs/2103.09844 fig. 5b (digitised)
+# columns: sqrt_s [TeV], sigma [pb]
 3.046048036549191, 34.147980978617554
 3.1270573299698428, 34.548762007114284
 3.208066623390496, 34.92206258070731
