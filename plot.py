@@ -156,9 +156,9 @@ mark_crossing(line, 10, color=color)
 
 x, y, color = curve("incoherentpairs")
 line, = ax.plot(x, y, "-.", marker='o', markersize=3, color=color, lw=1, alpha=0.5)
-ax.text( 1.03*x[0], 0.70*y[0],
+ax.text( 0.95*10, 1.1*y[-1],
     CURVES_BY_KEY["incoherentpairs"]["label"] + "\n[Modified GUINEA-PIG]",
-    color=color, fontsize=10, verticalalignment='top',horizontalalignment='left'
+    color=color, fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
 mark_crossing(line, 10, color=color)
 
