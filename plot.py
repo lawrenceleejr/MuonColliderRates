@@ -69,11 +69,7 @@ def curve(key):
     if name not in datasets:
         datasets[name] = mcrates.load(name)
     dataset = datasets[name]
-    x = dataset.x
-    y = dataset.column(spec.get("column", 1))
-    if spec.get("rate_equivalent"):
-        y = mcrates.rate_equivalent(x, y)
-    return x, y, spec["color"]
+    return dataset.x, dataset.column(spec.get("column", 1)), spec["color"]
 
 
 baselength=4
@@ -164,20 +160,18 @@ x, y, color = curve("incoherentpairs")
 # No marker on the 3 TeV end: like every other curve here, only the 10 TeV
 # crossing is marked.
 line, = ax.plot(x, y, "-.", color=color, lw=1, alpha=0.5)
-# In the wedge under its own curve, same offset as the 1.4 GeV one below: these
-# curves are steep, so a horizontal label anywhere near them gets crossed.
-ax.text( 0.95*10, 0.015*y[-1],
+ax.text( 0.95*10, 0.25*y[-1],
     CURVES_BY_KEY["incoherentpairs"]["label"],
-    color=color, fontsize=8.5, path_effects=HALO, verticalalignment='center',horizontalalignment='right'
+    color=color, fontsize=8.5, path_effects=HALO, verticalalignment='top',horizontalalignment='right'
 )
 mark_crossing(line, 10, color=color)
 
 
 x, y, color = curve("incoherentpairsecal")
 line, = ax.plot(x, y, "-.", color=color, lw=1, alpha=0.5)
-# In the wedge under its own curve: the curve is steep enough that a horizontal
-# label anywhere near it gets crossed.
-ax.text( 0.95*10, 0.015*y[-1],
+# Well under its own curve: the band immediately below belongs to the neutrino
+# slice label.
+ax.text( 0.95*10, 0.06*y[-1],
     CURVES_BY_KEY["incoherentpairsecal"]["label"],
     color=color, fontsize=8.5, path_effects=HALO, verticalalignment='center',horizontalalignment='right'
 )
@@ -358,13 +352,11 @@ mark_crossing(line, 10, color=to_rgba(color,alpha))
 
 source_block = ax.text(0.0, 1.012,
     r"$\sigma$ from 2005.10289; 2103.09844; 2412.14115; Z. Liu, X. Wang;"
-    + "\nModified GUINEA-PIG; and MadGraph5_aMC@NLO"
-    + "\n" + r"Incoherent pairs are rates, plotted against the rate axis: the 3 TeV"
-    + "\n" + r"points use that stage's L=$2.1\times10^{34}$ cm$^{-2}$ s$^{-1}$",
+    + "\nModified GUINEA-PIG; and MadGraph5_aMC@NLO",
     transform=ax.transAxes, color="0.35", fontsize=9,
     verticalalignment='bottom', horizontalalignment='left', linespacing=1.4
 )
-ax.set_title(r"Muon Collider Rates", loc='left', fontsize=21, color="k", pad=68)
+ax.set_title(r"Muon Collider Rates", loc='left', fontsize=21, color="k", pad=40)
 
 
 

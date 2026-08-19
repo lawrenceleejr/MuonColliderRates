@@ -15,10 +15,6 @@ number expressed as a rate at the nominal 10 TeV operating point,
 Table 1.1, Scenario 1 Stage 2). Curves are grouped into machine-induced and inclusive
 backgrounds (grey), Standard Model processes, and BSM benchmarks.
 
-The incoherent-pair curves are the one exception: they are rates rather than
-cross sections, so they are plotted to be read against the *rate* axis — see
-[below](#reading-the-pair-curves).
-
 Compiled by L. Lee and T. Holmes. Corrections and additions are welcome — see
 [Contributing](#contributing).
 
@@ -141,33 +137,29 @@ The spectrum is steep: of the ~5.6 × 10⁵ pair leptons produced per crossing a
 10 TeV, only about one is hard enough to reach the calorimeter, and the hardest
 lepton in a typical crossing is only a few hundred MeV.
 
-### Reading the pair curves
+### Reading rates off these curves
 
-A σ_eff is only a rate once you multiply by the luminosity of the machine that
-produced it, and the two stages differ by a factor of ten. The figure has a
-single rate axis, fixed to the 10 TeV value, so plotting σ_eff directly would
-make the 3 TeV points read ten times too high on it.
+σ_eff is a cross section like any other on the figure: multiply it by a
+luminosity to get a rate. The right-hand axis does that at the 10 TeV target
+value, which is what its label says, so a 3 TeV point read against it gives the
+rate that beam configuration *would* produce at 2.1 × 10³⁵ — not the rate a
+3 TeV collider sees. That caveat applies to every curve at 3 TeV, not just these
+two. For the stage's own rate, multiply by its own luminosity
+(`mcrates.STAGE_LUMI_CM2_S`):
 
-`mcrates.rate_equivalent` therefore scales each point by
-`L(√s) / L_nominal` before plotting, which is a no-op at 10 TeV and a factor 1/10
-at 3 TeV:
+| √s | p_T threshold | σ_eff | × L(stage) | = rate at that stage |
+|----|---------------|-------|------------|----------------------|
+| 3 TeV | 15 MeV | 5.61 × 10¹⁰ fb | 2.1 × 10³⁴ | 1.2 MHz |
+| 10 TeV | 15 MeV | 2.53 × 10¹¹ fb | 2.1 × 10³⁵ | 53 MHz |
+| 3 TeV | 1.4 GeV | 3.0 × 10⁶ fb | 2.1 × 10³⁴ | 63 Hz |
+| 10 TeV | 1.4 GeV | 5.10 × 10⁷ fb | 2.1 × 10³⁵ | 11 kHz |
 
-```
-sigma_plotted × L_nominal  =  sigma_eff × L(√s)  =  the true rate
-```
-
-The **data files hold σ_eff** — the physical quantity, unscaled. The **figure
-plots the rate-equivalent value**, so every point on those two curves reads
-correctly against the rate axis whichever stage it belongs to. The left-hand σ
-axis is therefore *not* the effective cross section for these two curves, which
-is why the figure says so under the title.
-
-| √s | p_T threshold | σ_eff (data file) | plotted | true rate |
-|----|---------------|-------------------|---------|-----------|
-| 3 TeV | 15 MeV | 5.61 × 10¹⁰ fb | 5.61 × 10⁹ fb | 1.2 MHz |
-| 10 TeV | 15 MeV | 2.53 × 10¹¹ fb | 2.53 × 10¹¹ fb | 53 MHz |
-| 3 TeV | 1.4 GeV | 3.0 × 10⁶ fb | 3.0 × 10⁵ fb | 63 Hz |
-| 10 TeV | 1.4 GeV | 5.10 × 10⁷ fb | 5.10 × 10⁷ fb | 11 kHz |
+As a sanity check on the shape: from 3 to 10 TeV the 15 MeV pair cross section
+rises 4.5×, against 1.8× for the inclusive-hadron curve — the same direction and
+a comparable slope, which is what you would expect of two beam-driven yields.
+The 1.4 GeV curve rises more steeply (17×) because a fixed threshold bites much
+harder into the softer 3 TeV spectrum, though with one count at 3 TeV that slope
+is barely constrained.
 
 To reproduce (needs Docker; nothing else):
 

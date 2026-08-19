@@ -32,10 +32,6 @@ def build():
         column = spec.get("column", 1)
         x = data.x
         y = data.column(column)
-        if spec.get("rate_equivalent"):
-            # Really a rate: rescaled so the page's single rate axis reads the
-            # true value at each stage. See mcrates.rate_equivalent.
-            y = mcrates.rate_equivalent(x, y)
         points = [
             [float(xi), float(yi)]
             for xi, yi in zip(x, y)
