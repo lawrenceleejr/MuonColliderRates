@@ -179,9 +179,11 @@ mark_crossing(line, 10, color=color)
 #         fontfamily='serif')  # Try 'monospace' or 'sans-serif' too
 
 
-ax.text( 0.95*10, 1.12*hz_to_fb(29979)*0.44*0.21,
-    "Neutrino Slice Interaction\n[2412.14115]",
-    color="grey", fontsize=10, path_effects=HALO, verticalalignment='bottom',horizontalalignment='right'
+# Below its own marker: the band above is only half a decade wide before the
+# inclusive-hadron curve runs through it.
+ax.text( 0.95*10, 0.72*hz_to_fb(29979)*0.44*0.21,
+    "Neutrino Slice Interaction",
+    color="grey", fontsize=10, path_effects=HALO, verticalalignment='top',horizontalalignment='right'
 )
 ax.plot(10, hz_to_fb(29979)*0.44*0.21, marker='o',clip_on=False, color="grey")
 
@@ -339,7 +341,7 @@ mark_crossing(line, 10, color=to_rgba(color,alpha))
 # title -- hence set_title with a pad large enough to clear the source line.
 
 ax.text(0.0, 1.012,
-    r"$\sigma$ from 2005.10289; 2103.09844; Z. Liu, X. Wang;"
+    r"$\sigma$ from 2005.10289; 2103.09844; 2412.14115; Z. Liu, X. Wang;"
     + "\nModified GUINEA-PIG; and MadGraph5_aMC@NLO",
     transform=ax.transAxes, color="0.35", fontsize=9,
     verticalalignment='bottom', horizontalalignment='left', linespacing=1.4
