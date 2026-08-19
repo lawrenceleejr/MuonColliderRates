@@ -92,6 +92,7 @@ Rules:
 | `mumu.txt` | μ⁺μ⁻ → μ⁺μ⁻, p_T > 10 GeV, \|η\| < 2.5 | MadGraph5_aMC@NLO, LO |
 | `thermalwimp.txt` | Thermal-relic higgsino- and wino-like WIMP pairs | Z. Liu and X. Wang, private communication |
 | `incoherentpairs.txt` | Incoherent e⁺e⁻ pairs, p_T(e) > 15 MeV | Modified GuineaPig — see below |
+| `incoherentpairsecal.txt` | Incoherent e⁺e⁻ pairs, p_T(e) > 1.4 GeV (reach the ECAL) | Modified GuineaPig — see below |
 | `vbfqq.txt` | VBF qq̄ | provenance not recorded — [tell us](https://github.com/lawrenceleejr/MuonColliderRates/issues) if you know it |
 | `collisionrate.txt` | Reference collision rate (not a cross section) | — |
 
@@ -105,12 +106,12 @@ GuineaPig that treats the beams as muons, run from the published container
 image at
 [`ghcr.io/lawrenceleejr/guineapig_mumu`](https://github.com/lawrenceleejr/guineapig_mumu).
 
-For each simulated bunch crossing we count the pair leptons produced above
-`p_T = 15 MeV` and read off that crossing's luminosity, then quote the
+For each simulated bunch crossing we count the pair leptons produced above a
+`p_T` threshold and read off that crossing's luminosity, then quote the
 effective cross section
 
 ```
-sigma_eff = N(e±, p_T > 15 MeV) / L_crossing
+sigma_eff = N(e±, p_T > p_T,min) / L_crossing
 ```
 
 so that `sigma_eff × L_collider` is the *particle* rate entering the detector —
@@ -119,29 +120,64 @@ parameters are the IMCC interim-report targets
 ([arXiv:2407.12450](https://arxiv.org/abs/2407.12450), Table 1.1, Scenario 1):
 Stage 1 for 3 TeV, Stage 2 for 10 TeV.
 
-| √s | Pair leptons per crossing | σ_eff | Rate at 2 × 10³⁵ |
-|----|---------------------------|-------|------------------|
-| 3 TeV | ~217 | 5.5 × 10¹⁰ fb | ~11 MHz |
-| 10 TeV | ~7100 | 2.5 × 10¹¹ fb | ~50 MHz |
+Two thresholds are counted on the same crossings, so the two curves are
+statistically consistent with each other:
+
+* **15 MeV** — roughly what it takes to get out of the beam pipe at all.
+* **1.4 GeV** — the minimum `p_T` for a particle to reach the ECAL surface.
+
+| √s | crossings | p_T > 15 MeV | | p_T > 1.4 GeV | |
+|----|-----------|--------------|--|---------------|--|
+| | | leptons/crossing | σ_eff | leptons/crossing | σ_eff |
+| 3 TeV | 84 | ~223 | 5.6 × 10¹⁰ fb (~11 MHz) | ~0.012 | 3.0 × 10⁶ fb (~0.6 kHz) |
+| 10 TeV | 24 | ~7090 | 2.5 × 10¹¹ fb (~50 MHz) | ~1.3 | 4.6 × 10⁷ fb (~9 kHz) |
+
+The spectrum is steep: of the ~5.6 × 10⁵ pair leptons produced per crossing at
+10 TeV, only about one is hard enough to reach the calorimeter, and the hardest
+lepton in a typical crossing is only a few hundred MeV.
 
 To reproduce (needs Docker; nothing else):
 
 ```bash
 cd guineapig
-./run_pairs.sh mumu10tev pairs10tev 16 runs/10tev 2
-./run_pairs.sh mumu3tev  pairs3tev  16 runs/3tev  2
-python summarize.py 3:runs/3tev 10:runs/10tev --output ../data/incoherentpairs.txt
+./run_pairs.sh mumu10tev pairs10tev 24 runs/10tev 2
+./run_pairs.sh mumu3tev  pairs3tev  24 runs/3tev  2
+# 3 TeV needs more exposure for the 1.4 GeV tail; a second batch, seeded past
+# the first, gets pooled by giving the same energy twice:
+SKIP_BASE=2 ./run_pairs.sh mumu3tev pairs3tev 60 runs/3tev-extra 4
+
+PTS="3:runs/3tev 3:runs/3tev-extra 10:runs/10tev"
+python summarize.py $PTS --pt-min 0.015 --output ../data/incoherentpairs.txt
+python summarize.py $PTS --pt-min 1.4   --output ../data/incoherentpairsecal.txt
 ```
 
 `acc.dat` holds the beam and simulation parameters; `run_pairs.sh` runs the
 crossings (in parallel chains, carrying GuineaPig's random state forward so each
-crossing is independent) and reduces each one to a single line;
-`summarize.py` averages them. The per-crossing summaries behind the committed
-numbers are kept in `guineapig/runs/`.
+crossing is independent) and reduces each one to a single line per threshold;
+`summarize.py` averages them. The runs are deterministic, so the commands above
+reproduce the committed numbers exactly. The per-crossing summaries behind them
+are kept in `guineapig/runs/`.
 
-The quoted uncertainty is the crossing-to-crossing standard error only. It does
-not cover the grid resolution, the choice of `track_pairs=0`, or the beam
-parameters themselves, all of which matter more than the statistics.
+`PT_MINS` sets which thresholds are counted. `SKIP_BASE` must be past the chain
+count of every earlier batch: chains are decorrelated by advancing GuineaPig's
+random state (chain index − 1) times, so a second batch left at the default
+would replay the first one exactly.
+
+### Caveats
+
+The quoted uncertainty is the crossing-to-crossing standard error only.
+
+* **`track_pairs=0`.** Pairs are recorded at production, so the beam-field
+  deflection is not included. The no-FFTW build segfaults with tracking on, even
+  with `grids=1`. This barely matters at 15 MeV but is the dominant systematic at
+  1.4 GeV, since the deflection is exactly what gives a pair lepton a large
+  transverse kick.
+* **The 1.4 GeV tail is rare**, so it is the statistics-hungry number. At 3 TeV
+  it rests on a single lepton above threshold in 84 crossings — quoted with a
+  100% uncertainty, and best read as an order of magnitude. The first 24
+  crossings alone gave a value 3.5× higher, which is the size of fluctuation to
+  expect from one count.
+* Grid resolution and the beam parameters themselves are not varied.
 
 GuineaPig references: D. Schulte, PhD thesis, Univ. Hamburg, TESLA-97-08 (1997);
 D. Schulte, "Beam-beam simulations with GUINEA-PIG", CERN-PS-99-014-LP,
@@ -191,6 +227,8 @@ The site is published from a workflow, not from a branch: no `gh-pages` branch
 and no `docs/` folder are involved. `.github/workflows/pages.yml` renders the
 figure, exports the data and deploys on every push to `main`.
 
-This requires the Pages source to be set once, in
-**Settings → Pages → Build and deployment → Source: *GitHub Actions***. If it is
-left on a branch source, the deploy step fails with `Get Pages site failed`.
+The workflow's `configure-pages` step turns Pages on with the **GitHub Actions**
+source the first time it runs, so there is nothing to set by hand. If that step
+is ever removed and Pages has never been enabled, the deploy fails with
+`Get Pages site failed` / a 404 until the source is set in
+**Settings → Pages → Build and deployment**.

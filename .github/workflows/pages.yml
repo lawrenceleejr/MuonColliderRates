@@ -1,9 +1,8 @@
 name: Build and deploy the interactive figure
 
-# The site is published from this workflow, not from a branch. It needs
-# Settings -> Pages -> Build and deployment -> Source: "GitHub Actions"
-# (set once per repository); with a branch source, deploy-pages fails with
-# "Get Pages site failed".
+# The site is published from this workflow, not from a branch. The
+# configure-pages step below turns Pages on with the "GitHub Actions" source if
+# it is not on already, so no repository setting has to be changed by hand.
 
 on:
   push:
@@ -26,6 +25,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      # Creates the Pages site with source "GitHub Actions" if it does not exist
+      # yet; without this, deploy-pages 404s with "Get Pages site failed".
+      - name: Enable and configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: Set up Python
         uses: actions/setup-python@v5

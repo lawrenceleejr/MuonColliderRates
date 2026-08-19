@@ -14,6 +14,7 @@ import numpy as np
 
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
 from matplotlib.colors import to_rgba
+import matplotlib.patheffects as pe
 import matplotlib.transforms as mtrans
 from matplotlib.transforms import Affine2D
 
@@ -22,6 +23,11 @@ from helperFunctions import *
 
 import mcrates
 from mcrates import CURVES_BY_KEY, fb_to_hz, hz_to_fb
+
+
+# A thin white outline behind every in-plot label, so a curve passing behind
+# text never fights it for legibility.
+HALO = [pe.withStroke(linewidth=3.0, foreground="white")]
 
 
 def mark_crossing(line, x_val, **marker_kwargs):
@@ -85,7 +91,7 @@ ax.annotate(
     xy=(10, hz_to_fb(40000000)),                 # Point to annotate
     xytext=(8, hz_to_fb(40000000)),           # Position of the text (to the left)
     arrowprops=dict(arrowstyle='-|>',color="grey"), va="center", ha="right",
-    color="grey"
+    color="grey", path_effects=HALO
 )
 
 ax.annotate(
@@ -93,7 +99,7 @@ ax.annotate(
     xy=(10, hz_to_fb(100000)),                 # Point to annotate
     xytext=(8, hz_to_fb(100000)),           # Position of the text (to the left)
     arrowprops=dict(arrowstyle='-|>',color="grey"), va="center", ha="right",
-    color="grey"
+    color="grey", path_effects=HALO
 )
 
 
@@ -111,7 +117,7 @@ ax.annotate(
     '30 kHz Collision Rate (10 km)',       # Text
     xy=(10, hz_to_fb(29979)),                 # Point to annotate
     xytext=(8, hz_to_fb(29979)),           # Position of the text (to the left)
-    arrowprops=dict(arrowstyle='-|>'), va="center", ha="right"
+    arrowprops=dict(arrowstyle='-|>'), va="center", ha="right", path_effects=HALO
 )
 
 
@@ -119,7 +125,7 @@ ax.annotate(
     '1 Event / Snowmass Year',       # Text
     xy=(10, hz_to_fb(1e-7)),                 # Point to annotate
     xytext=(8, hz_to_fb(1e-7)),           # Position of the text (to the left)
-    arrowprops=dict(arrowstyle='-|>'), va="center", ha="right"
+    arrowprops=dict(arrowstyle='-|>'), va="center", ha="right", path_effects=HALO
 )
 
 # ax.text(10, 1e6, r'$\{$',
@@ -137,7 +143,7 @@ x, y, color = curve("lltohadrons")
 line, = ax.plot(x, y, ":", color=color, lw=1, alpha=0.5)
 ax.text( 1.2, 0.12*y[69],
     CURVES_BY_KEY["lltohadrons"]["label"],
-    color=color, fontsize=10, verticalalignment='bottom',horizontalalignment='left'
+    color=color, fontsize=10, path_effects=HALO, verticalalignment='bottom',horizontalalignment='left'
 )
 mark_crossing(line, 10, color=color)
 
@@ -145,16 +151,28 @@ x, y, color = curve("jj")
 line, = ax.plot(x, y, "--", color=color, lw=1, alpha=0.5)
 ax.text( 0.95*10, 1.3*y[69],
     CURVES_BY_KEY["jj"]["label"],
-    color=color, fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+    color=color, fontsize=10, path_effects=HALO, verticalalignment='bottom',horizontalalignment='right'
 )
 mark_crossing(line, 10, color=color)
 
 
 x, y, color = curve("incoherentpairs")
-line, = ax.plot(x, y, "-.", marker='o', markersize=3, color=color, lw=1, alpha=0.5)
-ax.text( 0.95*10, 1.1*y[-1],
-    CURVES_BY_KEY["incoherentpairs"]["label"] + "\n[Modified GUINEA-PIG]",
-    color=color, fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+# No marker on the 3 TeV end: like every other curve here, only the 10 TeV
+# crossing is marked.
+line, = ax.plot(x, y, "-.", color=color, lw=1, alpha=0.5)
+# Sits just under its own curve: the band above belongs to the 40 MHz guide.
+ax.text( 0.95*10, 0.28*y[-1],
+    CURVES_BY_KEY["incoherentpairs"]["label"],
+    color=color, fontsize=8.5, path_effects=HALO, verticalalignment='top',horizontalalignment='right'
+)
+mark_crossing(line, 10, color=color)
+
+
+x, y, color = curve("incoherentpairsecal")
+line, = ax.plot(x, y, "-.", color=color, lw=1, alpha=0.5)
+ax.text( 1.03*x[0], 0.62*y[0],
+    CURVES_BY_KEY["incoherentpairsecal"]["label"],
+    color=color, fontsize=8.5, path_effects=HALO, verticalalignment='top',horizontalalignment='left'
 )
 mark_crossing(line, 10, color=color)
 
@@ -172,9 +190,9 @@ mark_crossing(line, 10, color=color)
 #         fontfamily='serif')  # Try 'monospace' or 'sans-serif' too
 
 
-ax.text( 0.95*10, 1.12*hz_to_fb(29979)*0.44*0.21,
-    "Neutrino Slice Interaction\n[2412.14115]",
-    color="grey", fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+ax.text( 0.95*10, hz_to_fb(29979)*0.44*0.21,
+    "Neutrino Slice Interaction",
+    color="grey", fontsize=10, path_effects=HALO, verticalalignment='center',horizontalalignment='right'
 )
 ax.plot(10, hz_to_fb(29979)*0.44*0.21, marker='o',clip_on=False, color="grey")
 
@@ -189,7 +207,7 @@ x, y, color = curve("vbfz")
 line, = ax.plot(x, y, "-", color=to_rgba(color,alpha), lw=1)
 ax.text( 0.95*10, 1.05*y[69],
     CURVES_BY_KEY["vbfz"]["label"],
-    color=to_rgba(color,alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+    color=to_rgba(color,alpha), fontsize=10, path_effects=HALO, verticalalignment='bottom',horizontalalignment='right'
 )
 mark_crossing(line, 10, color=to_rgba(color,alpha))
 print("VBF Z")
@@ -200,7 +218,7 @@ print_crossing(line, 10, color=to_rgba(color,alpha))
 # line, = ax.plot(x, y, "-", color=to_rgba(color,alpha), lw=1)
 # ax.text( 0.95*10, 1.05*y[3],
 #     CURVES_BY_KEY["vbfqq"]["label"],
-#     color=to_rgba(color,alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+#     color=to_rgba(color,alpha), fontsize=10, path_effects=HALO, verticalalignment='bottom',horizontalalignment='right'
 # )
 # mark_crossing(line, 10, color=to_rgba(color,alpha))
 
@@ -211,7 +229,7 @@ x, y, color = curve("vbfh")
 line, = ax.plot(x, y, "-", color=to_rgba(color,alpha), lw=1)
 ax.text( 0.95*10, 1.05*y[65],
     CURVES_BY_KEY["vbfh"]["label"],
-    color=to_rgba(color,alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+    color=to_rgba(color,alpha), fontsize=10, path_effects=HALO, verticalalignment='bottom',horizontalalignment='right'
 )
 mark_crossing(line, 10, color=to_rgba(color,alpha))
 
@@ -225,7 +243,7 @@ x, y, color = curve("mumu")
 line, = ax.plot(x, y, "-", color=to_rgba(color,alpha), lw=1)
 ax.text( 2.2, 1.0*10000,
     CURVES_BY_KEY["mumu"]["label"],
-    color=to_rgba(color,alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='left'
+    color=to_rgba(color,alpha), fontsize=10, path_effects=HALO, verticalalignment='bottom',horizontalalignment='left'
 )
 mark_crossing(line, 10, color=to_rgba(color,alpha))
 
@@ -236,7 +254,7 @@ x, y, color = curve("vbfww")
 line, = ax.plot(x, y, "-", color=to_rgba(color,alpha), lw=1)
 ax.text( 2, 30,
     CURVES_BY_KEY["vbfww"]["label"],
-    color=to_rgba(color,alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='left'
+    color=to_rgba(color,alpha), fontsize=10, path_effects=HALO, verticalalignment='bottom',horizontalalignment='left'
 )
 mark_crossing(line, 10, color=to_rgba(color,alpha))
 
@@ -247,7 +265,7 @@ x, y, color = curve("vbftt")
 line, = ax.plot(x, y, "-", color=to_rgba(color,alpha), lw=1)
 ax.text( 1.2, 2,
     CURVES_BY_KEY["vbftt"]["label"],
-    color=to_rgba(color,alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='left'
+    color=to_rgba(color,alpha), fontsize=10, path_effects=HALO, verticalalignment='bottom',horizontalalignment='left'
 )
 mark_crossing(line, 10, color=to_rgba(color,alpha))
 
@@ -256,7 +274,7 @@ x, y, color = curve("vbfhh")
 line, = ax.plot(x, y, "-", color=to_rgba(color,alpha), lw=1)
 ax.text( 0.95*10, 1.05*y[66],
     CURVES_BY_KEY["vbfhh"]["label"],
-    color=to_rgba(color,alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+    color=to_rgba(color,alpha), fontsize=10, path_effects=HALO, verticalalignment='bottom',horizontalalignment='right'
 )
 mark_crossing(line, 10, color=to_rgba(color,alpha))
 
@@ -269,7 +287,7 @@ x, y, color = curve("wimp_higgsino")
 line, = ax.plot(x, y, "-", color=to_rgba(color,alpha), lw=1)
 ax.text( 2.25, 3e0,
     CURVES_BY_KEY["wimp_higgsino"]["label"],
-    color=to_rgba(color,alpha), fontsize=10, verticalalignment='top',horizontalalignment='right',rotation=90
+    color=to_rgba(color,alpha), fontsize=10, path_effects=HALO, verticalalignment='top',horizontalalignment='right',rotation=90
 )
 mark_crossing(line, 10, color=to_rgba(color,alpha))
 
@@ -278,7 +296,7 @@ x, y, color = curve("wimp_wino")
 line, = ax.plot(x, y, "-", color=to_rgba(color,alpha), lw=1)
 ax.text( 5.7, 3e0,
     CURVES_BY_KEY["wimp_wino"]["label"],
-    color=to_rgba(color,alpha), fontsize=10, verticalalignment='top',horizontalalignment='right', rotation=90
+    color=to_rgba(color,alpha), fontsize=10, path_effects=HALO, verticalalignment='top',horizontalalignment='right', rotation=90
 )
 mark_crossing(line, 10, color=to_rgba(color,alpha))
 
@@ -294,7 +312,7 @@ x, y, color = curve("vbfwwz")
 line, = ax.plot(x, y, "-", color=to_rgba(color,alpha), lw=1)
 ax.text( 0.95*10, 1.05*y[64],
     CURVES_BY_KEY["vbfwwz"]["label"],
-    color=to_rgba(color,alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+    color=to_rgba(color,alpha), fontsize=10, path_effects=HALO, verticalalignment='bottom',horizontalalignment='right'
 )
 mark_crossing(line, 10, color=to_rgba(color,alpha))
 
@@ -305,7 +323,7 @@ x, y, color = curve("vbftth")
 line, = ax.plot(x, y, "-", color=to_rgba(color,alpha), lw=1)
 ax.text( 0.95*10, 1.05*y[75],
     CURVES_BY_KEY["vbftth"]["label"],
-    color=to_rgba(color,alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+    color=to_rgba(color,alpha), fontsize=10, path_effects=HALO, verticalalignment='bottom',horizontalalignment='right'
 )
 mark_crossing(line, 10, color=to_rgba(color,alpha))
 
@@ -315,7 +333,7 @@ x, y, color = curve("vbfhhh")
 line, = ax.plot(x, y, "-", color=to_rgba(color,alpha), lw=1)
 ax.text( 0.95*10, 1.05*y[73],
     CURVES_BY_KEY["vbfhhh"]["label"],
-    color=to_rgba(color,alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+    color=to_rgba(color,alpha), fontsize=10, path_effects=HALO, verticalalignment='bottom',horizontalalignment='right'
 )
 mark_crossing(line, 10, color=to_rgba(color,alpha))
 
@@ -326,18 +344,18 @@ mark_crossing(line, 10, color=to_rgba(color,alpha))
 
 
 
-# Labels
+# Title block above the axes rather than over the data, so the whole interior
+# is left to the curves and their labels.  matplotlib_tufte turns on
+# figure.autolayout, which ignores subplots_adjust but does reserve room for a
+# title -- hence set_title with a pad large enough to clear the source line.
 
-ax.text( 1, 1e10,
-    r"Muon Collider Rates",
-    color="k", fontsize=22, verticalalignment='bottom',horizontalalignment='left'
+ax.text(0.0, 1.012,
+    r"$\sigma$ from 2005.10289; 2103.09844; 2412.14115; Z. Liu, X. Wang;"
+    + "\nModified GUINEA-PIG; and MadGraph5_aMC@NLO",
+    transform=ax.transAxes, color="0.35", fontsize=9,
+    verticalalignment='bottom', horizontalalignment='left', linespacing=1.4
 )
-ax.text( 1, 0.8e10,
-    r"$\sigma$ from 2005.10289; 2103.09844; Z. Liu, X. Wang;"+ "\nModified GUINEA-PIG; and MadGraph5_aMC@NLO",
-    color="k", fontsize=10, verticalalignment='top',horizontalalignment='left'
-)
-
-
+ax.set_title(r"Muon Collider Rates", loc='left', fontsize=21, color="k", pad=40)
 
 
 
