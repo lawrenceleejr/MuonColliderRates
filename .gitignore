@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+MuonColliderRates.pdf
+MuonColliderRates.png
+InstantaneousLuminosity.pdf
+.DS_Store

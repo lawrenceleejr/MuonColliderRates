@@ -1,4 +1,7 @@
-# https://indico.cern.ch/event/1564581/contributions/6591806/attachments/3097402/5487468/GGI-course-slides.pdf
+# title: VBF ttbar
+# process: mu+ mu- -> t tbar nu nubar (vector-boson fusion)
+# source: https://indico.cern.ch/event/1564581/contributions/6591806/attachments/3097402/5487468/GGI-course-slides.pdf (GGI lectures; digitised)
+# columns: sqrt_s [TeV], sigma [fb]
 1.0193051875040728, 0.4641831481694461
 1.0503076049594107, 0.5247600602627616
 1.0838047435959344, 0.5881021472730147

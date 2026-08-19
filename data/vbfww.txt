@@ -1,4 +1,7 @@
-# https://arxiv.org/pdf/2005.10289
+# title: VBF WW
+# process: mu+ mu- -> W W nu nubar (vector-boson fusion)
+# source: https://arxiv.org/abs/2005.10289 (digitised)
+# columns: sqrt_s [TeV], sigma [fb]
 1.0206914707735635, 17.929289894159467
 1.0597418774887282, 19.833431213537082
 1.100288126411692, 21.859419664296517

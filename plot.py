@@ -1,3 +1,10 @@
+"""Build MuonColliderRates.pdf -- the reference cross-section/rate figure.
+
+Data live in ``data/*.txt``; how each curve is drawn (colour, dash, label) lives
+in ``mcrates.CURVES``.  Only the hand-tuned label placement is local to this
+file.
+"""
+
 from matplotlib_tufte import *
 setup()
 
@@ -11,20 +18,11 @@ import matplotlib.transforms as mtrans
 from matplotlib.transforms import Affine2D
 
 
-import sys
-import ast
-sys.path.insert(0, "data")
 from helperFunctions import *
-from thermalwimp import tmpdata as thermalwimp_data
 
-# plt.subplots_adjust(wspace=0.03)
-def fb_to_hz(cross_section_fb, lumi_cm2_s=2e35):
-    # Convert fb to cm^2
-    sigma_cm2 = cross_section_fb * 1e-39
-    # Rate in Hz
-    return sigma_cm2 * lumi_cm2_s
-def hz_to_fb(rate_hz, lumi_cm2_s=2e35):
-    return rate_hz / lumi_cm2_s * 1e39
+import mcrates
+from mcrates import CURVES_BY_KEY, fb_to_hz, hz_to_fb
+
 
 def mark_crossing(line, x_val, **marker_kwargs):
     x_data, y_data = line.get_data()
@@ -51,50 +49,21 @@ def print_crossing(line, x_val, **marker_kwargs):
             break  # Only mark the first crossing
 
 
-# colors = ["#FF595E",  "#1982C4", "#8AC926", "#F2CC8F", "#1982C4", "#1982C4"]
+# ---------------------------------------------------------------------------
+# Data.  Everything comes out of the loader already converted to fb.
+# ---------------------------------------------------------------------------
 
-colors = [
-    "#d62728",  # red
-    "#ff7f0e",  # orange
-    "#8c564b",  # brown
-    "#2ca02c",  # green
-    "#bcbd22",  # lime (new)
-    "#17becf",  # cyan
-    "#17a398",  # teal (new)
-    "#1f77b4",  # blue
-    "#9467bd",  # purple
-    "#e377c2",  # pink
-    "#7f7f7f",  # gray
-]
-# colors = ["#E07A5F",  # Terra Cotta
-# 		"#F2CC8F",  # Sand
-# 		"#81B29A"]  # Sage
+datasets = {}
 
-# colors = ["#FF0000", "#00FF00", "#0000FF"]
-# colors = ["#FF6B6B", "#6BCB77", "#4D96FF"]
-# colors = ["#3A86FF", "#8338EC", "#FB5607"]
-# colors = ["#FF6B6B", "#4ECDC4", "#1A535C"]
-# colors = ["#4477AA", "#CC6677", "#117733"]
 
-data = {}
-
-# data["collisionrate"] = np.genfromtxt("data/collisionrate.txt", delimiter=",", skip_header=0, names=["x","y"])
-
-data["mumu"] = np.genfromtxt("data/mumu.txt", delimiter=",", skip_header=1, names=["x","y","sigma"])
-data["vbfqq"] = np.genfromtxt("data/vbfqq.txt", delimiter=",", skip_header=0, names=["x","y"])
-data["vbfz"] = np.genfromtxt("data/vbfz.txt", delimiter=",", skip_header=1, names=["x","y"])
-data["vbfww"] = np.genfromtxt("data/vbfww.txt", delimiter=",", skip_header=1, names=["x","y"])
-data["vbfwwz"] = np.genfromtxt("data/vbfwwz.txt", delimiter=",", skip_header=1, names=["x","y"])
-data["vbftt"] = np.genfromtxt("data/vbftt.txt", delimiter=",", skip_header=1, names=["x","y"])
-data["vbftth"] = np.genfromtxt("data/vbftth.txt", delimiter=",", skip_header=1, names=["x","y"])
-data["vbfh"] = np.genfromtxt("data/vbfh.txt", delimiter=",", skip_header=1, names=["x","y"])
-data["vbfhh"] = np.genfromtxt("data/vbfhh.txt", delimiter=",", skip_header=1, names=["x","y"])
-data["vbfhhh"] = np.genfromtxt("data/vbfhhh.txt", delimiter=",", skip_header=1, names=["x","y"])
-
-data["thermalwimp"] = np.array(thermalwimp_data)
-
-data["jj"] = np.genfromtxt("data/jj.txt", delimiter=",", skip_header=1, names=["x","y"])
-data["lltohadrons"] = np.genfromtxt("data/lltohadrons.txt", delimiter=",", skip_header=1, names=["x","y"])
+def curve(key):
+    """(x [TeV], sigma [fb], colour) for a curve declared in mcrates.CURVES."""
+    spec = CURVES_BY_KEY[key]
+    name = spec["dataset"]
+    if name not in datasets:
+        datasets[name] = mcrates.load(name)
+    dataset = datasets[name]
+    return dataset.x, dataset.column(spec.get("column", 1)), spec["color"]
 
 
 baselength=4
@@ -162,20 +131,32 @@ ax.annotate(
 ### Actual Curves:
 
 
+### Machine-induced and inclusive backgrounds, all in grey
 
-line, = ax.plot(data["lltohadrons"]['x'], (data["lltohadrons"]['y']*1e6),":", color="grey", lw=1, alpha=0.5)
-ax.text( 1.2, 0.12*data["lltohadrons"]['y'][69]*1e6,
-    r"Incl. $\mu\mu\to$Hadrons",
-    color="grey", fontsize=10, verticalalignment='bottom',horizontalalignment='left'
+x, y, color = curve("lltohadrons")
+line, = ax.plot(x, y, ":", color=color, lw=1, alpha=0.5)
+ax.text( 1.2, 0.12*y[69],
+    CURVES_BY_KEY["lltohadrons"]["label"],
+    color=color, fontsize=10, verticalalignment='bottom',horizontalalignment='left'
 )
-mark_crossing(line, 10, color="grey")
+mark_crossing(line, 10, color=color)
 
-line, = ax.plot(data["jj"]['x'], (data["jj"]['y']*1e3),"--", color="grey", lw=1, alpha=0.5)
-ax.text( 0.95*10, 1.3*data["jj"]['y'][69]*1e3,
-    r"jj ($p_{T,j}>5-7 \text{ GeV}$, $|\eta_{j}|<3.13$)",
-    color="grey", fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+x, y, color = curve("jj")
+line, = ax.plot(x, y, "--", color=color, lw=1, alpha=0.5)
+ax.text( 0.95*10, 1.3*y[69],
+    CURVES_BY_KEY["jj"]["label"],
+    color=color, fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
-mark_crossing(line, 10, color="grey")
+mark_crossing(line, 10, color=color)
+
+
+x, y, color = curve("incoherentpairs")
+line, = ax.plot(x, y, "-.", marker='o', markersize=3, color=color, lw=1, alpha=0.5)
+ax.text( 0.95*10, 1.1*y[-1],
+    CURVES_BY_KEY["incoherentpairs"]["label"] + "\n[Modified GUINEA-PIG]",
+    color=color, fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+)
+mark_crossing(line, 10, color=color)
 
 
 
@@ -191,130 +172,115 @@ mark_crossing(line, 10, color="grey")
 #         fontfamily='serif')  # Try 'monospace' or 'sans-serif' too
 
 
-ax.text( 0.95*10, hz_to_fb(29979)*0.44*0.21,
+ax.text( 0.95*10, 1.12*hz_to_fb(29979)*0.44*0.21,
     "Neutrino Slice Interaction\n[2412.14115]",
-    color="grey", fontsize=10, verticalalignment='top',horizontalalignment='right'
+    color="grey", fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
 ax.plot(10, hz_to_fb(29979)*0.44*0.21, marker='o',clip_on=False, color="grey")
 
 
 
 
+### Standard Model and BSM benchmark processes
 
-i=0
 alpha=1
 
-line, = ax.plot(data["vbfz"]['x'], (data["vbfz"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 0.95*10, 1.05*data["vbfz"]['y'][69],
-    r"VBF Z",
-    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+x, y, color = curve("vbfz")
+line, = ax.plot(x, y, "-", color=to_rgba(color,alpha), lw=1)
+ax.text( 0.95*10, 1.05*y[69],
+    CURVES_BY_KEY["vbfz"]["label"],
+    color=to_rgba(color,alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
-mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+mark_crossing(line, 10, color=to_rgba(color,alpha))
 print("VBF Z")
-print_crossing(line, 10, color=to_rgba(colors[i],alpha))
+print_crossing(line, 10, color=to_rgba(color,alpha))
 
 
-# i=i+1
-# line, = ax.plot(data["vbfqq"]['x'], (data["vbfqq"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
-# ax.text( 0.95*10, 1.05*data["vbfqq"]['y'][3],
-#     r"VBF $q\bar{q}$",
-#     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+# x, y, color = curve("vbfqq")
+# line, = ax.plot(x, y, "-", color=to_rgba(color,alpha), lw=1)
+# ax.text( 0.95*10, 1.05*y[3],
+#     CURVES_BY_KEY["vbfqq"]["label"],
+#     color=to_rgba(color,alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 # )
-# mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+# mark_crossing(line, 10, color=to_rgba(color,alpha))
 
 
 
 
-i=i+1
-line, = ax.plot(data["vbfh"]['x'], (data["vbfh"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 0.95*10, 1.05*data["vbfh"]['y'][65],
-    r"VBF $H$",
-    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+x, y, color = curve("vbfh")
+line, = ax.plot(x, y, "-", color=to_rgba(color,alpha), lw=1)
+ax.text( 0.95*10, 1.05*y[65],
+    CURVES_BY_KEY["vbfh"]["label"],
+    color=to_rgba(color,alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
-mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+mark_crossing(line, 10, color=to_rgba(color,alpha))
 
 print("VBF H")
-print_crossing(line, 10, color=to_rgba(colors[i],alpha))
+print_crossing(line, 10, color=to_rgba(color,alpha))
 
 
 
 
-i=i+1
-line, = ax.plot(data["mumu"]['x'], (1000*data["mumu"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
+x, y, color = curve("mumu")
+line, = ax.plot(x, y, "-", color=to_rgba(color,alpha), lw=1)
 ax.text( 2.2, 1.0*10000,
-    r"$\mu\mu$ ($p_{T,\mu}>10$ GeV, $|\eta_{\mu}|<2.5$)",
-    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='left'
+    CURVES_BY_KEY["mumu"]["label"],
+    color=to_rgba(color,alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='left'
 )
-mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+mark_crossing(line, 10, color=to_rgba(color,alpha))
 
 
 
 
-i=i+1
-line, = ax.plot(data["vbfww"]['x'], (data["vbfww"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
+x, y, color = curve("vbfww")
+line, = ax.plot(x, y, "-", color=to_rgba(color,alpha), lw=1)
 ax.text( 2, 30,
-    r"VBF $WW$",
-    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='left'
+    CURVES_BY_KEY["vbfww"]["label"],
+    color=to_rgba(color,alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='left'
 )
-mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+mark_crossing(line, 10, color=to_rgba(color,alpha))
 
 
 
 
-i=i+1
-line, = ax.plot(data["vbftt"]['x'], (data["vbftt"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
+x, y, color = curve("vbftt")
+line, = ax.plot(x, y, "-", color=to_rgba(color,alpha), lw=1)
 ax.text( 1.2, 2,
-    r"VBF $t\bar{t}$",
-    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='left'
+    CURVES_BY_KEY["vbftt"]["label"],
+    color=to_rgba(color,alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='left'
 )
-mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+mark_crossing(line, 10, color=to_rgba(color,alpha))
 
 
-i=i+1
-line, = ax.plot(data["vbfhh"]['x'], (data["vbfhh"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 0.95*10, 1.05*data["vbfhh"]['y'][66],
-    r"VBF $HH$",
-    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+x, y, color = curve("vbfhh")
+line, = ax.plot(x, y, "-", color=to_rgba(color,alpha), lw=1)
+ax.text( 0.95*10, 1.05*y[66],
+    CURVES_BY_KEY["vbfhh"]["label"],
+    color=to_rgba(color,alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
-mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+mark_crossing(line, 10, color=to_rgba(color,alpha))
 
 print("VBF HH")
-print_crossing(line, 10, color=to_rgba(colors[i],alpha))
+print_crossing(line, 10, color=to_rgba(color,alpha))
 
 
 # https://arxiv.org/pdf/2102.11292
-# i=i+1
-# ax.text( 0.95*10, 0.65*(2.2+0.039),
-#     r"Ther. $\tilde{W}$ WIMP",
-#     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='center',horizontalalignment='right'
-# )
-# ax.plot(10, 2.2+0.039, marker='o',clip_on=False, color=to_rgba(colors[i],alpha))
-
-
-# i=i+1
-# ax.text( 0.95*10, 0.65*1.18436,
-#     r"Ther. $\tilde{H}$ WIMP",
-#     color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='center',horizontalalignment='right'
-# )
-# ax.plot(10, 1.18436, marker='o',clip_on=False, color=to_rgba(colors[i],alpha))
-
-
-i=i+1
-line, = ax.plot(data["thermalwimp"][0], (data["thermalwimp"][1]*1000.),"-", color=to_rgba(colors[i],alpha), lw=1)
+x, y, color = curve("wimp_higgsino")
+line, = ax.plot(x, y, "-", color=to_rgba(color,alpha), lw=1)
 ax.text( 2.25, 3e0,
-    r"Thermal $\tilde{H}$-like WIMP",
-    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='top',horizontalalignment='right',rotation=90
+    CURVES_BY_KEY["wimp_higgsino"]["label"],
+    color=to_rgba(color,alpha), fontsize=10, verticalalignment='top',horizontalalignment='right',rotation=90
 )
-mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+mark_crossing(line, 10, color=to_rgba(color,alpha))
 
 
-i=i+1
-line, = ax.plot(data["thermalwimp"][0], (data["thermalwimp"][3]*1000.),"-", color=to_rgba(colors[i],alpha), lw=1)
+x, y, color = curve("wimp_wino")
+line, = ax.plot(x, y, "-", color=to_rgba(color,alpha), lw=1)
 ax.text( 5.7, 3e0,
-    r"Thermal $\tilde{W}$-like WIMP",
-    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='top',horizontalalignment='right', rotation=90
+    CURVES_BY_KEY["wimp_wino"]["label"],
+    color=to_rgba(color,alpha), fontsize=10, verticalalignment='top',horizontalalignment='right', rotation=90
 )
-mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+mark_crossing(line, 10, color=to_rgba(color,alpha))
 
 
 
@@ -324,34 +290,34 @@ mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
 
 
 
-i=i+1
-line, = ax.plot(data["vbfwwz"]['x'], (data["vbfwwz"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 0.95*10, 1.05*data["vbfwwz"]['y'][64],
-    r"VBF $WWZ$",
-    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+x, y, color = curve("vbfwwz")
+line, = ax.plot(x, y, "-", color=to_rgba(color,alpha), lw=1)
+ax.text( 0.95*10, 1.05*y[64],
+    CURVES_BY_KEY["vbfwwz"]["label"],
+    color=to_rgba(color,alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
-mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+mark_crossing(line, 10, color=to_rgba(color,alpha))
 
 
 
 
-i=i+1
-line, = ax.plot(data["vbftth"]['x'], (data["vbftth"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 0.95*10, 1.05*data["vbftth"]['y'][75],
-    r"VBF $t\bar{t}H$",
-    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+x, y, color = curve("vbftth")
+line, = ax.plot(x, y, "-", color=to_rgba(color,alpha), lw=1)
+ax.text( 0.95*10, 1.05*y[75],
+    CURVES_BY_KEY["vbftth"]["label"],
+    color=to_rgba(color,alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
-mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+mark_crossing(line, 10, color=to_rgba(color,alpha))
 
 
 
-i=i+1
-line, = ax.plot(data["vbfhhh"]['x'], (data["vbfhhh"]['y']),"-", color=to_rgba(colors[i],alpha), lw=1)
-ax.text( 0.95*10, 1.05*data["vbfhhh"]['y'][73],
-    r"VBF $HHH$",
-    color=to_rgba(colors[i],alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
+x, y, color = curve("vbfhhh")
+line, = ax.plot(x, y, "-", color=to_rgba(color,alpha), lw=1)
+ax.text( 0.95*10, 1.05*y[73],
+    CURVES_BY_KEY["vbfhhh"]["label"],
+    color=to_rgba(color,alpha), fontsize=10, verticalalignment='bottom',horizontalalignment='right'
 )
-mark_crossing(line, 10, color=to_rgba(colors[i],alpha))
+mark_crossing(line, 10, color=to_rgba(color,alpha))
 
 
 
@@ -367,7 +333,7 @@ ax.text( 1, 1e10,
     color="k", fontsize=22, verticalalignment='bottom',horizontalalignment='left'
 )
 ax.text( 1, 0.8e10,
-    r"$\sigma$ from 2005.10289; 2103.09844; Z. Liu, X. Wang;"+ "\nand MadGraph5_aMC@NLO",
+    r"$\sigma$ from 2005.10289; 2103.09844; Z. Liu, X. Wang;"+ "\nModified GUINEA-PIG; and MadGraph5_aMC@NLO",
     color="k", fontsize=10, verticalalignment='top',horizontalalignment='left'
 )
 
@@ -408,9 +374,5 @@ fig.text(0.97, 0.03, 'L. Lee, T. Holmes', ha='right', va='top', fontsize=10)
 fig.subplots_adjust(left=0.18, right=0.85, bottom=0.08, top=0.96)
 fig.canvas.draw()
 
-# fig.savefig("MuonColliderRates.pdf")
-# plt.show()
-
-
-
 fig.savefig("MuonColliderRates.pdf")
+fig.savefig("MuonColliderRates.png", dpi=200)

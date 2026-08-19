@@ -1,0 +1,71 @@
+name: Build and deploy the interactive figure
+
+# The site is published from this workflow, not from a branch. It needs
+# Settings -> Pages -> Build and deployment -> Source: "GitHub Actions"
+# (set once per repository); with a branch source, deploy-pages fails with
+# "Get Pages site failed".
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two deploys race; let a newer commit win.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --no-cache-dir matplotlib
+          pip install --no-cache-dir "matplotlib_tufte @ git+https://github.com/ninivert/matplotlib_tufte.git"
+
+      - name: Render the reference figure
+        run: python plot.py
+
+      - name: Export the data for the web page
+        run: python make_web_data.py
+
+      - name: Assemble the site
+        run: |
+          mkdir -p _site
+          cp -r web/. _site/
+          cp MuonColliderRates.pdf MuonColliderRates.png _site/
+          # Build stamp lives here rather than in curves.json, which has to stay
+          # a pure function of data/ so CI can check it.
+          printf '{"commit":"%s","date":"%s"}\n' \
+            "$(git rev-parse --short HEAD)" \
+            "$(git log -1 --format=%cs)" > _site/data/build.json
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

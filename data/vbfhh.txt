@@ -1,4 +1,7 @@
-#https://indico.cern.ch/event/1564581/contributions/6591806/attachments/3097402/5487468/GGI-course-slides.pdf
+# title: VBF HH
+# process: mu+ mu- -> H H nu nubar (vector-boson fusion)
+# source: https://indico.cern.ch/event/1564581/contributions/6591806/attachments/3097402/5487468/GGI-course-slides.pdf (GGI lectures; digitised)
+# columns: sqrt_s [TeV], sigma [fb]
 1.0208537501422907, 0.08043922056500208
 1.0561135623925006, 0.0918080222674554
 1.0925912321073545, 0.10191999221343692

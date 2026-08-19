@@ -1,4 +1,7 @@
-# https://arxiv.org/pdf/2103.09844 fig 4
+# title: Inclusive mumu -> hadrons
+# process: mu+ mu- -> hadrons (inclusive)
+# source: https://arxiv.org/abs/2103.09844 fig. 4 (digitised)
+# columns: sqrt_s [TeV], sigma [nb]
 1.053721150035062, 12.069003512468818
 1.1873126213197558, 12.874929780070323
 1.3209040926044495, 13.669504973480297

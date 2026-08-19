@@ -1,4 +1,7 @@
-# https://indico.cern.ch/event/1564581/contributions/6591806/attachments/3097402/5487468/GGI-course-slides.pdf
+# title: Annihilation ttbar
+# process: mu+ mu- -> t tbar (s-channel annihilation)
+# source: https://indico.cern.ch/event/1564581/contributions/6591806/attachments/3097402/5487468/GGI-course-slides.pdf (GGI lectures; digitised)
+# columns: sqrt_s [TeV], sigma [fb]
 1.3362739276630813, 93.98152059775914
 1.3711206680213903, 90.01678514625546
 1.4685683685816031, 78.1958009882028

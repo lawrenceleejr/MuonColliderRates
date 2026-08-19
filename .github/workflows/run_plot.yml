@@ -1,9 +1,8 @@
-name: Run Plot with matplotlib_tufte
+name: Render the figure
 
 on:
   push:
-    paths:
-      - '**'
+  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -26,8 +25,20 @@ jobs:
       - name: Run the plot
         run: python plot.py
 
+      - name: Check web/data/curves.json is up to date
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          python make_web_data.py
+          if ! git diff --quiet -- web/data/curves.json; then
+            echo "web/data/curves.json is stale. Run 'python make_web_data.py' and commit the result." >&2
+            git diff --stat -- web/data/curves.json >&2
+            exit 1
+          fi
+
       - name: Upload PDF artifact
         uses: actions/upload-artifact@v4
         with:
           name: MuonColliderRates
-          path: MuonColliderRates.pdf
+          path: |
+            MuonColliderRates.pdf
+            MuonColliderRates.png

@@ -1,3 +1,7 @@
+# title: VBF qqbar
+# process: mu+ mu- -> q qbar nu nubar (vector-boson fusion)
+# source: provenance not recorded; please open an issue if you know it
+# columns: sqrt_s [TeV], sigma [fb]
 1, 638.1452609204935
 3.002461709085549, 1305.5966903330116
 5.953533130814362, 1778.521055138573
