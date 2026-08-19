@@ -153,11 +153,26 @@ python summarize.py $PTS --pt-min 0.015 --output ../data/incoherentpairs.txt
 python summarize.py $PTS --pt-min 1.4   --output ../data/incoherentpairsecal.txt
 ```
 
+### Grid resolution and the hard tail
+
 `acc.dat` also carries `pairs10tev_fast` / `pairs3tev_fast`: the same physics
-switches on a half-resolution grid with a quarter of the macroparticles, about
-seven times cheaper per crossing. They reproduce the bulk numbers (stored pairs,
-`p_T > 15 MeV` count, luminosity) to about a percent, which is what makes the
-rare tail affordable — but see the caveats before using them for physics.
+switches on a half-resolution grid with a quarter of the macroparticles, seven
+times cheaper per crossing. **Do not use them for the `p_T` tail.** Comparing
+them against the full-resolution set at 10 TeV, threshold by threshold
+(`guineapig/runs/gridstudy_10tev_*.txt`, 20 vs 60 crossings):
+
+| p_T > | full grid σ_eff [fb] | fast grid σ_eff [fb] | fast / full |
+|-------|----------------------|----------------------|-------------|
+| 15 MeV | (2.526 ± 0.007) × 10¹¹ | (2.527 ± 0.005) × 10¹¹ | 1.000 ± 0.004 |
+| 0.1 GeV | (1.330 ± 0.018) × 10¹⁰ | (1.311 ± 0.010) × 10¹⁰ | 0.985 ± 0.015 |
+| 0.3 GeV | (1.853 ± 0.056) × 10⁹ | (1.715 ± 0.034) × 10⁹ | 0.925 ± 0.033 |
+| 0.7 GeV | (3.24 ± 0.25) × 10⁸ | (2.97 ± 0.15) × 10⁸ | 0.917 ± 0.086 |
+| 1.4 GeV | (4.6 ± 1.0) × 10⁷ | (5.42 ± 0.57) × 10⁷ | 1.18 ± 0.28 |
+
+The coarse grid is exact on the bulk but undershoots the tail by roughly 8%
+above 0.3 GeV, at 2.3σ where the statistics are best. So it is fine for the
+15 MeV curve and useless for the 1.4 GeV one. Everything committed uses the
+full-resolution sets.
 
 `acc.dat` holds the beam and simulation parameters; `run_pairs.sh` runs the
 crossings (in parallel chains, carrying GuineaPig's random state forward so each
@@ -180,11 +195,13 @@ The quoted uncertainty is the crossing-to-crossing standard error only.
   with `grids=1`. This barely matters at 15 MeV but is the dominant systematic at
   1.4 GeV, since the deflection is exactly what gives a pair lepton a large
   transverse kick.
-* **The 1.4 GeV tail is rare**, so it is the statistics-hungry number. At 3 TeV
-  it rests on a single lepton above threshold in 84 crossings — quoted with a
-  100% uncertainty, and best read as an order of magnitude. The first 24
-  crossings alone gave a value 3.5× higher, which is the size of fluctuation to
-  expect from one count.
+* **The 1.4 GeV tail is rare**, so it is the statistics-hungry number. At 10 TeV
+  it takes ~1.44 leptons per crossing, and 112 crossings get it to 8%. At 3 TeV
+  the rate per crossing is ~120× lower, so the same precision needs ~8400
+  crossings — around 29 core-hours on the full-resolution grid, which is why the
+  3 TeV point is still quoted at 100% off a single lepton and should be read as
+  an order of magnitude. Reaching 10% there is a matter of compute, not method:
+  keep adding `SKIP_BASE`-offset batches and pooling them.
 * Grid resolution and the beam parameters themselves are not varied.
 
 GuineaPig references: D. Schulte, PhD thesis, Univ. Hamburg, TESLA-97-08 (1997);
